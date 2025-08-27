@@ -23,7 +23,7 @@
   </div>
 
   
-  <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-gray-500">
+  <div class="grid grid-cols-7 text-center text-xs md:text- font-medium text-black/70">
     <div>Dom</div>
     <div>Lun</div>
     <div>Mar</div>
@@ -38,15 +38,15 @@
     <ng-container *ngFor="let week of weeks()">
       <ng-container *ngFor="let day of week">
         <div
-          class="h-24 md:h-28 lg:h-32 rounded border-4 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-blue-100"
+          class="h-24 md:h-28 lg:h-32 rounded border-4 border-stone-300 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-blue-100"
           [ngClass]="{
-            'opacity-50': !day.inCurrentMonth,
+            'opacity-50 bg-gray-50': !day.inCurrentMonth,
             'ring-2 ring-blue-400': day.isToday,
             'bg-blue-100': selectedDate() === day.iso
           }"
           (click)="selectDay(day)"
         >
-          <div class="text-xs md:text-sm font-medium text-right">
+          <div class="text-xs md:text-lg font-medium text-right">
             {{ day.date.getDate() }}
           </div>
 
