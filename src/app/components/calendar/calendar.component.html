@@ -16,13 +16,11 @@
       <button (click)="openDayModal()"
         [disabled]="!selectedDate()"
         class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed">
-  Ver
-</button>
-
+        Ver
+      </button>
     </div>
   </div>
 
-  
   <div class="grid grid-cols-7 text-center text-xs md:text- font-medium text-black/70">
     <div>Dom</div>
     <div>Lun</div>
@@ -33,41 +31,62 @@
     <div>Sáb</div>
   </div>
 
-  <!-- build calendar -->
-  <div class="mt-2 grid grid-cols-7 gap-1 md:gap-2">
-    <ng-container *ngFor="let week of weeks()">
-      <ng-container *ngFor="let day of week">
-        <div
-          class="h-24 md:h-28 lg:h-32 rounded border-4 border-stone-300 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-blue-100"
-          [ngClass]="{
-            'opacity-50 bg-gray-50': !day.inCurrentMonth,
-            'ring-2 ring-blue-400': day.isToday,
-            'bg-blue-100': selectedDate() === day.iso
-          }"
-          (click)="selectDay(day)"
-        >
-          <div class="text-xs md:text-lg font-medium text-right">
-            {{ day.date.getDate() }}
-          </div>
-
-          <!--Evento segun dia-->
-          <div class="mt-1 space-y-1 overflow-hidden">
-            <div
-              *ngFor="let ev of getEventsForDay(day.iso)"
-              class="text-[10px] md:text-sm px-1 rounded bg-blue-600 text-white truncate"
-            >
-              {{ ev.title }}
-            </div>
-          </div>
+  
+  <div class="mt-2 relative">
+   
+    <div class="absolute inset-0 pointer-events-none z-10">
+      <ng-container *ngFor="let span of eventSpans()">
+        <div 
+          class="absolute bg-blue-600 text-white text-xs px-2 py-1 rounded truncate"
+          [style.top]="'calc(' + (span.row * 100 / weeks().length) + '% + ' + (span.row * 8) + 'px)'"
+          [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 4px)'"
+          [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 8px)'"
+          [style.height]="'24px'"
+          [title]="span.event.title">
+          {{ span.event.title }}
         </div>
       </ng-container>
-    </ng-container>
+    </div>
+
+    <!-- build calendar -->
+    <div class="grid grid-cols-7 gap-1 md:gap-2 relative z-0">
+      <ng-container *ngFor="let week of weeks()">
+        <ng-container *ngFor="let day of week">
+          <div
+            class="h-24 md:h-28 lg:h-32 rounded border-4 border-stone-300 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-blue-100"
+            [ngClass]="{
+              'opacity-50 bg-gray-50': !day.inCurrentMonth,
+              'ring-2 ring-blue-400': day.isToday,
+              'bg-blue-100': selectedDate() === day.iso
+            }"
+            (click)="selectDay(day)"
+          >
+            <div class="text-xs md:text-lg font-medium text-right">
+              {{ day.date.getDate() }}
+            </div>
+
+            <!-- Eventos de un solo día -->
+            <div class="mt-1 space-y-1 overflow-hidden">
+              <ng-container *ngFor="let ev of getEventsForDay(day.iso)">
+                <div
+                  *ngIf="shouldShowEventInCell(ev, day.iso)"
+                  class=" pt-2 text-[10px] text-center md:text-sm px-1 rounded bg-blue-600 text-white truncate"
+                >
+                  {{ ev.title }}
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
   </div>
 </div>
 
+=
 
 <!-- Modal para agregar evento -->
-<div *ngIf="showEventForm()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+<div *ngIf="showEventForm()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center modal-overlay z-50">
   <div class="bg-white p-6 rounded-lg w-80 space-y-4">
     <h2 class="text-lg font-semibold">Nuevo evento</h2>
 
@@ -87,7 +106,7 @@
     </div>
   </div>
 </div>
-<div *ngIf="showDayModal()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+<div *ngIf="showDayModal()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center modal-overlay z-50">
   <div class="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto space-y-4">
     <div class="flex justify-between items-center">
       <h2 class="text-lg font-semibold">Eventos del {{ selectedDate() }}</h2>

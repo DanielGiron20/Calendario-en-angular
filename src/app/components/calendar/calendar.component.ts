@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { NgFor, NgClass, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -10,9 +10,20 @@ type DayCell = {
 };
 
 type EventItem = {
+  id: string;
   title: string;
   start: string; // 'YYYY-MM-DD'
   end: string;   // 'YYYY-MM-DD'
+};
+
+type EventSpan = {
+  event: EventItem;
+  startDate: string;
+  endDate: string;
+  row: number;
+  colStart: number;
+  colEnd: number;
+  isMultiDay: boolean;
 };
 
 @Component({
@@ -27,9 +38,89 @@ export class CalendarComponent implements OnInit {
   month = signal<number>(this.today.getMonth());
   weeks = signal<DayCell[][]>([]);
   selectedDate = signal<string | null>(null);
-showDayModal = signal<boolean>(false);
+  showDayModal = signal<boolean>(false);
 
   events = signal<EventItem[]>([]);
+
+  // Nueva señal para calcular los spans de eventos
+  eventSpans = computed<EventSpan[]>(() => {
+    const spans: EventSpan[] = [];
+    const weeks = this.weeks();
+    const events = this.events();
+    
+    if (weeks.length === 0) return spans;
+
+    events.forEach((event) => {
+      const startDate = new Date(event.start);
+      const endDate = new Date(event.end);
+      const isMultiDay = event.start !== event.end;
+      if (event.start === event.end) return;
+      // Encontrar las coordenadas de la grilla para el evento
+      let foundStart = false;
+      let foundEnd = false;
+      let startCol = -1;
+      let endCol = -1;
+      let row = -1;
+
+      for (let weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
+        const week = weeks[weekIndex];
+        for (let dayIndex = 0; dayIndex < week.length; dayIndex++) {
+          const day = week[dayIndex];
+          const dayDate = new Date(day.iso);
+          
+          if (dayDate.getTime() === startDate.getTime() && !foundStart) {
+            startCol = dayIndex;
+            row = weekIndex;
+            foundStart = true;
+          }
+          
+          if (dayDate.getTime() === endDate.getTime() && !foundEnd) {
+            endCol = dayIndex;
+            foundEnd = true;
+          }
+          
+          if (foundStart && foundEnd) break;
+        }
+        if (foundStart && foundEnd) break;
+      }
+
+      if (foundStart && foundEnd && row !== -1) {
+        spans.push({
+          event,
+          startDate: event.start,
+          endDate: event.end,
+          row,
+          colStart: startCol,
+          colEnd: endCol,
+          isMultiDay
+        });
+      }
+    });
+
+    return spans;
+  });
+
+    shouldShowEventInCell(event: EventItem, dayIso: string): boolean {
+  // Eventos de un solo día: siempre mostrar
+  if (event.start === event.end) {
+    return true;
+  }
+  
+  // Eventos multi-día: verificar si está en spans
+  const eventSpan = this.eventSpans().find(span => span.event.id === event.id);
+  
+  // Si no tiene span, mostrar en todas las celdas (fallback)
+  if (!eventSpan) {
+    return true;
+  }
+  
+  // Si tiene span, NO mostrar en NINGUNA celda (solo se muestra el span)
+  return false;
+}
+  // Verificar si un evento está en la lista de spans (eventos multi-día)
+  isEventInSpans(event: EventItem): boolean {
+    return this.eventSpans().some(span => span.event.id === event.id);
+  }
 
   showEventForm = signal<boolean>(false);
   newEvent: { title: string; start: string; end: string } = {
@@ -38,6 +129,45 @@ showDayModal = signal<boolean>(false);
     end: '',
   };
 
+  ngOnInit(): void {
+    this.buildCalendar();
+  }
+
+
+  openEventForm() {
+    const selected = this.selectedDate();
+    this.newEvent = {
+      title: '',
+      start: selected ?? this.today.toISOString().slice(0, 10),
+      end: selected ?? this.today.toISOString().slice(0, 10),
+    };
+    this.showEventForm.set(true);
+  }
+
+  saveEvent() {
+    if (this.newEvent.title && this.newEvent.start && this.newEvent.end) {
+      const newEventWithId = {
+        ...this.newEvent,
+        id: Math.random().toString(36).substr(2, 9) // ID único para el evento
+      };
+      this.events.update((evts) => [...evts, newEventWithId]);
+      this.showEventForm.set(false);
+    }
+  }
+
+  getEventsForDay(dayIso: string): EventItem[] {
+    return this.events().filter(
+      (ev) => ev.start <= dayIso && ev.end >= dayIso
+    );
+  }
+
+  // Método para verificar si un evento empieza en un día específico
+  doesEventStartOnDay(event: EventItem, dayIso: string): boolean {
+    return event.start === dayIso;
+  }
+
+
+   
   openDayModal() {
   if (this.selectedDate()) {
     this.showDayModal.set(true);
@@ -48,9 +178,7 @@ closeDayModal() {
   this.showDayModal.set(false);
 }
 
-  ngOnInit(): void {
-    this.buildCalendar();
-  }
+
 
   prevMonth() {
     const m = this.month() - 1;
@@ -62,6 +190,8 @@ closeDayModal() {
     }
     this.buildCalendar();
   }
+
+  
 
   nextMonth() {
     const m = this.month() + 1;
@@ -85,28 +215,6 @@ closeDayModal() {
     this.selectedDate.set(day.iso);
   }
 
-  openEventForm() {
-    const selected = this.selectedDate();
-    this.newEvent = {
-      title: '',
-      start: selected ?? this.today.toISOString().slice(0, 10),
-      end: selected ?? this.today.toISOString().slice(0, 10),
-    };
-    this.showEventForm.set(true);
-  }
-
-  saveEvent() {
-    if (this.newEvent.title && this.newEvent.start && this.newEvent.end) {
-      this.events.update((evts) => [...evts, { ...this.newEvent }]);
-      this.showEventForm.set(false);
-    }
-  }
-
-  getEventsForDay(dayIso: string): EventItem[] {
-    return this.events().filter(
-      (ev) => ev.start <= dayIso && ev.end >= dayIso
-    );
-  }
 
   monthLabel(): string {
     const dtf = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
