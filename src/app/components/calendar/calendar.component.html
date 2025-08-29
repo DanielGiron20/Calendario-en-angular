@@ -9,29 +9,29 @@
       <button (click)="nextMonth()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
     </div>
     <div class="flex gap-2">
-      <button (click)="goToday()" class="px-3 py-1 rounded border hover:bg-gray-50">Hoy</button>
+      <button (click)="goToday()" class="px-3 py-1 rounded border hover:bg-gray-50">Today</button>
       <button (click)="openEventForm()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">
-        + Evento
+        + Event
       </button>
       <button (click)="openDayModal()"
         [disabled]="!selectedDate()"
         class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed">
-        Ver
+        View
       </button>
     </div>
   </div>
 
   <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-black/70">
-    <div>Dom</div>
-    <div>Lun</div>
-    <div>Mar</div>
-    <div>Mié</div>
-    <div>Jue</div>
-    <div>Vie</div>
-    <div>Sáb</div>
+    <div>Sun</div>
+    <div>Mon</div>
+    <div>Tue</div>
+    <div>Wed</div>
+    <div>Thu</div>
+    <div>Fri</div>
+    <div>Sat</div>
   </div>
 
-  <div class="mt-2 relative">
+  <div class="mt-2 relative"> 
     <!-- Spans de eventos multi-día -->
     <div class="absolute inset-0 pointer-events-none z-10">
       <ng-container *ngFor="let span of eventSpans()">
@@ -85,21 +85,21 @@
 <!-- Modal para agregar evento -->
 <div *ngIf="showEventForm()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center modal-overlay z-50">
   <div class="bg-white p-6 rounded-lg w-80 space-y-4">
-    <h2 class="text-lg font-semibold">Nuevo evento</h2>
+    <h2 class="text-lg font-semibold">New event</h2>
 
     <input type="text" [(ngModel)]="newEvent.title"
-      placeholder="Título del evento"
+      placeholder="Event title"
       class="w-full border rounded px-2 py-1" />
 
-    <label class="text-sm">Inicio:</label>
+    <label class="text-sm">Start:</label>
     <input type="date" [(ngModel)]="newEvent.start" class="w-full border rounded px-2 py-1" />
 
-    <label class="text-sm">Fin:</label>
+    <label class="text-sm">end:</label>
     <input type="date" [(ngModel)]="newEvent.end" class="w-full border rounded px-2 py-1" />
 
     <div class="flex justify-end gap-2">
-      <button (click)="showEventForm.set(false)" class="px-3 py-1 rounded border">Cancelar</button>
-      <button (click)="saveEvent()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Guardar</button>
+      <button (click)="showEventForm.set(false)" class="px-3 py-1 rounded border">Cancel</button>
+      <button (click)="saveEvent()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
     </div>
   </div>
 </div>
@@ -108,7 +108,7 @@
 <div *ngIf="showDayModal()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center modal-overlay z-50">
   <div class="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto space-y-4">
     <div class="flex justify-between items-center">
-      <h2 class="text-lg font-semibold">Eventos del {{ selectedDate() }}</h2>
+      <h2 class="text-lg font-semibold">Events of {{ selectedDate() }}</h2>
       <button (click)="closeDayModal()" class="text-gray-500 hover:text-gray-700">✕</button>
     </div>
 
@@ -121,7 +121,7 @@
     </div>
 
     <ng-template #noEvents>
-      <p class="text-gray-500 text-sm">No hay eventos para este día.</p>
+      <p class="text-gray-500 text-sm">No events for this day.</p>
     </ng-template>
   </div>
 </div>
