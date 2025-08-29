@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-7 text-center text-xs md:text- font-medium text-black/70">
+  <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-black/70">
     <div>Dom</div>
     <div>Lun</div>
     <div>Mar</div>
@@ -31,24 +31,23 @@
     <div>Sáb</div>
   </div>
 
-  
   <div class="mt-2 relative">
-   
+    <!-- Spans de eventos multi-día -->
     <div class="absolute inset-0 pointer-events-none z-10">
       <ng-container *ngFor="let span of eventSpans()">
         <div 
           class="absolute bg-blue-600 text-white text-xs px-2 py-1 rounded truncate"
-          [style.top]="'calc(' + (span.row * 100 / weeks().length) + '% + ' + (span.row * 8) + 'px)'"
-          [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 4px)'"
-          [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 8px)'"
-          [style.height]="'24px'"
+          [style.top]="'calc(' + (span.weekIndex * 100 / weeks().length) + '% + ' + (span.row * 24) + 'px)'"
+          [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 2px)'"
+          [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 4px)'"
+          [style.height]="'20px'"
           [title]="span.event.title">
           {{ span.event.title }}
         </div>
       </ng-container>
     </div>
 
-    <!-- build calendar -->
+    <!-- grilla del calendario -->
     <div class="grid grid-cols-7 gap-1 md:gap-2 relative z-0">
       <ng-container *ngFor="let week of weeks()">
         <ng-container *ngFor="let day of week">
@@ -65,12 +64,12 @@
               {{ day.date.getDate() }}
             </div>
 
-            <!-- Eventos de un solo día -->
+            <!-- eventos de un día -->
             <div class="mt-1 space-y-1 overflow-hidden">
               <ng-container *ngFor="let ev of getEventsForDay(day.iso)">
                 <div
-                  *ngIf="shouldShowEventInCell(ev, day.iso)"
-                  class=" pt-2 text-[10px] text-center md:text-sm px-1 rounded bg-blue-600 text-white truncate"
+                  *ngIf="ev.start === ev.end"
+                  class="pt-2 text-[10px] text-center md:text-sm px-1 rounded bg-blue-600 text-white truncate"
                 >
                   {{ ev.title }}
                 </div>
@@ -82,8 +81,6 @@
     </div>
   </div>
 </div>
-
-=
 
 <!-- Modal para agregar evento -->
 <div *ngIf="showEventForm()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center modal-overlay z-50">
@@ -106,6 +103,8 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de detalle -->
 <div *ngIf="showDayModal()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center modal-overlay z-50">
   <div class="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto space-y-4">
     <div class="flex justify-between items-center">

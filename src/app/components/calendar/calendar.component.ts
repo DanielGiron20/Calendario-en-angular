@@ -18,12 +18,10 @@ type EventItem = {
 
 type EventSpan = {
   event: EventItem;
-  startDate: string;
-  endDate: string;
+  weekIndex: number;
   row: number;
   colStart: number;
   colEnd: number;
-  isMultiDay: boolean;
 };
 
 @Component({
@@ -42,85 +40,57 @@ export class CalendarComponent implements OnInit {
 
   events = signal<EventItem[]>([]);
 
-  // Nueva señal para calcular los spans de eventos
+  // calcular spans multi-día
   eventSpans = computed<EventSpan[]>(() => {
     const spans: EventSpan[] = [];
     const weeks = this.weeks();
     const events = this.events();
-    
+
     if (weeks.length === 0) return spans;
 
     events.forEach((event) => {
       const startDate = new Date(event.start);
       const endDate = new Date(event.end);
-      const isMultiDay = event.start !== event.end;
+
+      // ignorar eventos de un solo día
       if (event.start === event.end) return;
-      // Encontrar las coordenadas de la grilla para el evento
-      let foundStart = false;
-      let foundEnd = false;
-      let startCol = -1;
-      let endCol = -1;
-      let row = -1;
 
-      for (let weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
-        const week = weeks[weekIndex];
-        for (let dayIndex = 0; dayIndex < week.length; dayIndex++) {
-          const day = week[dayIndex];
-          const dayDate = new Date(day.iso);
-          
-          if (dayDate.getTime() === startDate.getTime() && !foundStart) {
-            startCol = dayIndex;
-            row = weekIndex;
-            foundStart = true;
-          }
-          
-          if (dayDate.getTime() === endDate.getTime() && !foundEnd) {
-            endCol = dayIndex;
-            foundEnd = true;
-          }
-          
-          if (foundStart && foundEnd) break;
+      weeks.forEach((week, weekIndex) => {
+        const weekStart = new Date(week[0].iso);
+        const weekEnd = new Date(week[6].iso);
+
+        if (endDate < weekStart || startDate > weekEnd) return;
+
+        const segStart = startDate > weekStart ? startDate : weekStart;
+        const segEnd = endDate < weekEnd ? endDate : weekEnd;
+
+        const colStart = week.findIndex(d => d.iso === segStart.toISOString().slice(0, 10));
+        const colEnd = week.findIndex(d => d.iso === segEnd.toISOString().slice(0, 10));
+
+        if (colStart === -1 || colEnd === -1) return;
+
+        // asignar fila libre dentro de la semana
+        let row = 0;
+        while (spans.some(s =>
+          s.weekIndex === weekIndex &&
+          s.row === row &&
+          !(s.colEnd < colStart || s.colStart > colEnd)
+        )) {
+          row++;
         }
-        if (foundStart && foundEnd) break;
-      }
 
-      if (foundStart && foundEnd && row !== -1) {
         spans.push({
           event,
-          startDate: event.start,
-          endDate: event.end,
+          weekIndex,
           row,
-          colStart: startCol,
-          colEnd: endCol,
-          isMultiDay
+          colStart,
+          colEnd
         });
-      }
+      });
     });
 
     return spans;
   });
-
-    shouldShowEventInCell(event: EventItem, dayIso: string): boolean {
-  // Eventos de un solo día: siempre mostrar
-  if (event.start === event.end) {
-    return true;
-  }
-  
-  // Eventos multi-día: verificar si está en spans
-  const eventSpan = this.eventSpans().find(span => span.event.id === event.id);
-  
-  // Si no tiene span, mostrar en todas las celdas (fallback)
-  if (!eventSpan) {
-    return true;
-  }
-  
-  // Si tiene span, NO mostrar en NINGUNA celda (solo se muestra el span)
-  return false;
-}
-  // Verificar si un evento está en la lista de spans (eventos multi-día)
-  isEventInSpans(event: EventItem): boolean {
-    return this.eventSpans().some(span => span.event.id === event.id);
-  }
 
   showEventForm = signal<boolean>(false);
   newEvent: { title: string; start: string; end: string } = {
@@ -132,7 +102,6 @@ export class CalendarComponent implements OnInit {
   ngOnInit(): void {
     this.buildCalendar();
   }
-
 
   openEventForm() {
     const selected = this.selectedDate();
@@ -148,7 +117,7 @@ export class CalendarComponent implements OnInit {
     if (this.newEvent.title && this.newEvent.start && this.newEvent.end) {
       const newEventWithId = {
         ...this.newEvent,
-        id: Math.random().toString(36).substr(2, 9) // ID único para el evento
+        id: Math.random().toString(36).substr(2, 9)
       };
       this.events.update((evts) => [...evts, newEventWithId]);
       this.showEventForm.set(false);
@@ -161,24 +130,15 @@ export class CalendarComponent implements OnInit {
     );
   }
 
-  // Método para verificar si un evento empieza en un día específico
-  doesEventStartOnDay(event: EventItem, dayIso: string): boolean {
-    return event.start === dayIso;
-  }
-
-
-   
   openDayModal() {
-  if (this.selectedDate()) {
-    this.showDayModal.set(true);
+    if (this.selectedDate()) {
+      this.showDayModal.set(true);
+    }
   }
-}
 
-closeDayModal() {
-  this.showDayModal.set(false);
-}
-
-
+  closeDayModal() {
+    this.showDayModal.set(false);
+  }
 
   prevMonth() {
     const m = this.month() - 1;
@@ -190,8 +150,6 @@ closeDayModal() {
     }
     this.buildCalendar();
   }
-
-  
 
   nextMonth() {
     const m = this.month() + 1;
@@ -214,7 +172,6 @@ closeDayModal() {
   selectDay(day: DayCell) {
     this.selectedDate.set(day.iso);
   }
-
 
   monthLabel(): string {
     const dtf = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
