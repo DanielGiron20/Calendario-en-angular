@@ -24,6 +24,8 @@ type EventSpan = {
   colEnd: number;
 };
 
+
+
 @Component({
   selector: 'app-calendar',
   standalone: true,
@@ -92,6 +94,8 @@ export class CalendarComponent implements OnInit {
     return spans;
   });
 
+
+  
   showEventForm = signal<boolean>(false);
   newEvent: { title: string; start: string; end: string } = {
     title: '',

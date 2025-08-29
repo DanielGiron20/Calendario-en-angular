@@ -36,7 +36,7 @@
     <div class="absolute inset-0 pointer-events-none z-10">
       <ng-container *ngFor="let span of eventSpans()">
         <div 
-          class="absolute bg-blue-600 text-white text-xs px-2 py-1 rounded truncate"
+          class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 rounded truncate"
           [style.top]="'calc(' + (span.weekIndex * 100 / weeks().length) + '% + ' + (span.row * 24) + 'px)'"
           [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 2px)'"
           [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 4px)'"
@@ -69,7 +69,7 @@
               <ng-container *ngFor="let ev of getEventsForDay(day.iso)">
                 <div
                   *ngIf="ev.start === ev.end"
-                  class="pt-2 text-[10px] text-center md:text-sm px-1 rounded bg-blue-600 text-white truncate"
+                  class="text-[10px] text-center md:text-sm px-1 rounded bg-blue-600 text-white truncate"
                 >
                   {{ ev.title }}
                 </div>
