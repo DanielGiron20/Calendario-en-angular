@@ -25,6 +25,7 @@
     <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden"> 
       <ng-container *ngFor="let span of eventSpans()"> 
         <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 rounded truncate" 
+        [ngClass]="span.event.color || 'bg-blue-600'"
         [style.top]="'calc(' + (span.weekIndex * 100 / weeks().length) + '% + ' + (span.row * 22 + 40) + 'px)'" 
         [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 8px)'" 
         [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 18px)'" 
@@ -67,17 +68,53 @@
 <div *ngIf="showEventForm()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
   <div class="bg-white p-6 rounded-lg w-80 space-y-4">
     <h2 class="text-lg font-semibold">New event</h2>
-    <input type="text" [(ngModel)]="newEvent.title" placeholder="Event title" class="w-full border rounded px-2 py-1"  />
+    <div *ngIf="eventFormError()" class="text-red-600 text-sm font-medium">
+  {{ eventFormError() }}
+</div>
+
+
+    <!-- Título del evento -->
+    <input type="text" [(ngModel)]="newEvent.title" placeholder="Event title" class="w-full border rounded px-2 py-1" (input)="eventFormError.set(null)"  />
+
+    <!-- Fechas -->
     <label class="text-sm">Start:</label>
-    <input type="date" [(ngModel)]="newEvent.start" class="w-full border rounded px-2 py-1" />
+    <input type="date" [(ngModel)]="newEvent.start" class="w-full border rounded px-2 py-1"  (change)="eventFormError.set(null)"  />
+
     <label class="text-sm">End:</label>
-    <input type="date" [(ngModel)]="newEvent.end" class="w-full border rounded px-2 py-1" />
+    <input type="date" [(ngModel)]="newEvent.end" class="w-full border rounded px-2 py-1" (change)="eventFormError.set(null)"  />
+
+    <!-- Selector de color -->
+    <label class="text-sm">Color:</label>
+    <div class="flex gap-2">
+  <button type="button" 
+          (click)="newEvent.color='bg-blue-600'" 
+          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-blue-600'}" 
+          class="w-6 h-6 rounded bg-blue-600"></button>
+
+  <button type="button" 
+          (click)="newEvent.color='bg-green-600'" 
+          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-green-600'}" 
+          class="w-6 h-6 rounded bg-green-600"></button>
+
+  <button type="button" 
+          (click)="newEvent.color='bg-red-600'" 
+          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-red-600'}" 
+          class="w-6 h-6 rounded bg-red-600"></button>
+
+  <button type="button" 
+          (click)="newEvent.color='bg-yellow-400'" 
+          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-yellow-400'}" 
+          class="w-6 h-6 rounded bg-yellow-400"></button>
+</div>
+
+    <!-- Botones -->
     <div class="flex justify-end gap-2">
       <button (click)="showEventForm.set(false)" class="px-3 py-1 rounded border">Cancel</button>
       <button (click)="saveEvent()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
     </div>
   </div>
 </div>
+
 
 <!-- Modal detalle día -->
 <div *ngIf="showDayModal()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

@@ -14,6 +14,7 @@ type EventItem = {
   title: string;
   start: string; // 'YYYY-MM-DD'
   end: string;   // 'YYYY-MM-DD'
+  color?: string;
 };
 
 type EventSpan = {
@@ -37,9 +38,15 @@ export class CalendarComponent implements OnInit {
   weeks = signal<DayCell[][]>([]);
   selectedDate = signal<string | null>(null);
   showDayModal = signal<boolean>(false);
+  eventFormError = signal<string | null>(null);
   events = signal<EventItem[]>([]);
   showEventForm = signal<boolean>(false);
-  newEvent: { title: string; start: string; end: string } = { title: '', start: '', end: '' };
+  newEvent: {
+    color: string; title: string; start: string; end: string 
+} = {
+  title: '', start: '', end: '',
+  color: ''
+};
   random = Math.random();
   ngOnInit(): void {
     this.buildCalendar();
@@ -51,17 +58,36 @@ export class CalendarComponent implements OnInit {
       title: '',
       start: selected ?? this.today.toISOString().slice(0, 10),
       end: selected ?? this.today.toISOString().slice(0, 10),
+      color: ''
     };
     this.showEventForm.set(true);
   }
 
   saveEvent() {
-    if (this.newEvent.title && this.newEvent.start && this.newEvent.end) {
-      const newEventWithId = { ...this.newEvent, id: Math.random().toString(36).substr(2, 9) };
-      this.events.update(evts => [...evts, newEventWithId]);
-      this.showEventForm.set(false);
-    }
+  // Validación 1: título obligatorio
+  if (!this.newEvent.title.trim()) {
+    this.eventFormError.set('El título no puede quedar vacío');
+    return;
   }
+
+  // Validación 2: fecha de fin no menor que inicio
+  if (this.newEvent.end < this.newEvent.start) {
+    this.eventFormError.set('La fecha de fin no puede ser menor a la fecha de inicio');
+    return;
+  }
+
+  // Guardar evento
+  const newEventWithId = { 
+    ...this.newEvent, 
+    id: Math.random().toString(36).substr(2, 9),
+    color: this.newEvent.color || 'bg-blue-600'
+  };
+
+  this.events.update(evts => [...evts, newEventWithId]);
+  this.showEventForm.set(false);
+  this.eventFormError.set(null); // limpiar error
+}
+
 
   selectDay(day: DayCell) {
     this.selectedDate.set(day.iso);
@@ -147,28 +173,36 @@ eventSpans = computed<EventSpan[]>(() => {
       if (colStart === -1 || colEnd === -1) return;
 
      const keyPrefix = `${weekIndex}-`;
-let row = 0;
+     let row = 0;
+     
+let col = colStart;
+while (col <= colEnd) {
+  let segmentStart = col;
+  let rowForSegment = 0;
+
+  // buscar primer row libre en esta columna
+  while (dayRowCount[`${keyPrefix}${col}-${rowForSegment}`]) rowForSegment++;
+
+  // extender segmento mientras haya espacio consecutivo
+  while (col <= colEnd && !dayRowCount[`${keyPrefix}${col}-${rowForSegment}`]) {
+    dayRowCount[`${keyPrefix}${col}-${rowForSegment}`] = 1;
+    col++;
+  }
+
+  if (rowForSegment < 3) {
+    spans.push({
+      event: ev,
+      weekIndex,
+      row: rowForSegment,
+      colStart: segmentStart,
+      colEnd: col - 1
+    });
+  }
+}
+
+     
 
 // busca un row libre que esté disponible en TODO el rango del evento
-while (true) {
-  const conflict = Array.from({ length: colEnd - colStart + 1 }, (_, i) => {
-    const col = colStart + i;
-    return dayRowCount[`${keyPrefix}${col}-${row}`];
-  }).some(v => v);
-
-  if (!conflict) break;
-  row++;
-}
-
-// reservamos ese row en todas las columnas que ocupa
-for (let col = colStart; col <= colEnd; col++) {
-  dayRowCount[`${keyPrefix}${col}-${row}`] = 1;
-}
-
-// solo lo mostramos si está dentro de las 3 filas visibles
-if (row < 3) {
-  spans.push({ event: ev, weekIndex, row, colStart, colEnd });
-}
 
 
       
