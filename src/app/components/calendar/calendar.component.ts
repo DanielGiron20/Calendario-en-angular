@@ -64,19 +64,20 @@ export class CalendarComponent implements OnInit {
   }
 
   saveEvent() {
-  // Validación 1: título obligatorio
+  // Validación 1 titulo
   if (!this.newEvent.title.trim()) {
-    this.eventFormError.set('El título no puede quedar vacío');
+    this.eventFormError.set('the tittle cannot be empty.');
     return;
   }
 
-  // Validación 2: fecha de fin no menor que inicio
+  // Validación 2 fechas
   if (this.newEvent.end < this.newEvent.start) {
-    this.eventFormError.set('La fecha de fin no puede ser menor a la fecha de inicio');
+    this.eventFormError.set('The end date cannot be less than the start date.');
     return;
   }
 
-  // Guardar evento
+  
+  
   const newEventWithId = { 
     ...this.newEvent, 
     id: Math.random().toString(36).substr(2, 9),
@@ -85,7 +86,7 @@ export class CalendarComponent implements OnInit {
 
   this.events.update(evts => [...evts, newEventWithId]);
   this.showEventForm.set(false);
-  this.eventFormError.set(null); // limpiar error
+  this.eventFormError.set(null); // limpiar
 }
 
 
@@ -100,6 +101,11 @@ export class CalendarComponent implements OnInit {
   closeDayModal() {
     this.showDayModal.set(false);
   }
+  deleteEvent(eventId: string) {
+  this.events.update(evts => evts.filter(e => e.id !== eventId));
+}
+
+
 
   prevMonth() {
     const m = this.month() - 1;
@@ -202,7 +208,7 @@ while (col <= colEnd) {
 
      
 
-// busca un row libre que esté disponible en TODO el rango del evento
+
 
 
       

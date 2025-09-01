@@ -73,7 +73,7 @@
 </div>
 
 
-    <!-- Título del evento -->
+    <!-- Título -->
     <input type="text" [(ngModel)]="newEvent.title" placeholder="Event title" class="w-full border rounded px-2 py-1" (input)="eventFormError.set(null)"  />
 
     <!-- Fechas -->
@@ -87,27 +87,26 @@
     <label class="text-sm">Color:</label>
     <div class="flex gap-2">
   <button type="button" 
-          (click)="newEvent.color='bg-blue-600'" 
-          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-blue-600'}" 
-          class="w-6 h-6 rounded bg-blue-600"></button>
+          (click)="newEvent.color='bg-blue-500'" 
+          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-blue-500'}" 
+          class="w-6 h-6 rounded bg-blue-500"></button>
 
   <button type="button" 
-          (click)="newEvent.color='bg-green-600'" 
-          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-green-600'}" 
-          class="w-6 h-6 rounded bg-green-600"></button>
+          (click)="newEvent.color='bg-green-500'" 
+          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-green-500'}" 
+          class="w-6 h-6 rounded bg-green-500"></button>
 
   <button type="button" 
-          (click)="newEvent.color='bg-red-600'" 
-          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-red-600'}" 
-          class="w-6 h-6 rounded bg-red-600"></button>
+          (click)="newEvent.color='bg-orange-500'" 
+          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-orange-500'}" 
+          class="w-6 h-6 rounded bg-orange-500"></button>
 
   <button type="button" 
-          (click)="newEvent.color='bg-yellow-400'" 
-          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-yellow-400'}" 
-          class="w-6 h-6 rounded bg-yellow-400"></button>
+          (click)="newEvent.color='bg-rose-400'" 
+          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-rose-400'}" 
+          class="w-6 h-6 rounded bg-rose-400"></button>
 </div>
 
-    <!-- Botones -->
     <div class="flex justify-end gap-2">
       <button (click)="showEventForm.set(false)" class="px-3 py-1 rounded border">Cancel</button>
       <button (click)="saveEvent()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
@@ -123,12 +122,25 @@
       <h2 class="text-lg font-semibold">Events of {{ selectedDate() }}</h2>
       <button (click)="closeDayModal()" class="text-gray-500 hover:text-gray-700">✕</button>
     </div>
+
     <div *ngIf="getEventsForDay(selectedDate() || '').length > 0; else noEvents" class="space-y-2">
-      <div *ngFor="let ev of getEventsForDay(selectedDate()!)" class="px-3 py-2 rounded bg-blue-100 text-blue-800">
-        <div class="font-medium">{{ ev.title }}</div>
-        <div class="text-xs text-gray-500">{{ ev.start }} - {{ ev.end }}</div>
+      <div *ngFor="let ev of getEventsForDay(selectedDate()!)" class="px-3 py-2 rounded flex justify-between items-center bg-blue-100">
+        
+        <div class="flex-1">
+          <div class="font-medium">{{ ev.title }}</div>
+          <div class="text-xs text-gray-700">{{ ev.start }} - {{ ev.end }}</div>
+        </div>
+
+        <div class="flex gap-1 ml-2">
+
+          <!-- Botón Delete -->
+          <button (click)="deleteEvent(ev.id)" class="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">
+            Delete
+          </button>
+        </div>
       </div>
     </div>
+
     <ng-template #noEvents>
       <p class="text-gray-500 text-sm">No events for this day.</p>
     </ng-template>
