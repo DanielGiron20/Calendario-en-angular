@@ -173,7 +173,7 @@ eventSpans = computed<EventSpan[]>(() => {
       if (eventCount > 3) {
         
         const alreadyHasMore = spans.some(span => 
-          span.event.title === '+ Ver más' && 
+          span.event.title === '+ View more' && 
           span.weekIndex === weekIndex && 
           span.colStart === colIndex
         );
@@ -181,7 +181,7 @@ eventSpans = computed<EventSpan[]>(() => {
         if (!alreadyHasMore) {
           const moreEvent: EventItem = {
             id: 'more-' + day.iso,
-            title: '+ Ver más (' + (eventCount - 3) + ')',
+            title: '+ View more (' + (eventCount - 3) + ')',
             start: day.iso,
             end: day.iso
           };
