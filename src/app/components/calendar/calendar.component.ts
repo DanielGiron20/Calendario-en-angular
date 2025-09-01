@@ -40,7 +40,7 @@ export class CalendarComponent implements OnInit {
   events = signal<EventItem[]>([]);
   showEventForm = signal<boolean>(false);
   newEvent: { title: string; start: string; end: string } = { title: '', start: '', end: '' };
-
+  random = Math.random();
   ngOnInit(): void {
     this.buildCalendar();
   }
@@ -146,13 +146,31 @@ eventSpans = computed<EventSpan[]>(() => {
       const colEnd = week.findIndex(d => d.iso === segEnd.toISOString().slice(0, 10));
       if (colStart === -1 || colEnd === -1) return;
 
-      const key = `${weekIndex}-${colStart}`;
-      const used = dayRowCount[key] || 0;
+     const keyPrefix = `${weekIndex}-`;
+let row = 0;
 
-      if (used < 3) {
-        spans.push({ event: ev, weekIndex, row: used, colStart, colEnd });
-        dayRowCount[key] = used + 1;
-      }
+// busca un row libre que esté disponible en TODO el rango del evento
+while (true) {
+  const conflict = Array.from({ length: colEnd - colStart + 1 }, (_, i) => {
+    const col = colStart + i;
+    return dayRowCount[`${keyPrefix}${col}-${row}`];
+  }).some(v => v);
+
+  if (!conflict) break;
+  row++;
+}
+
+// reservamos ese row en todas las columnas que ocupa
+for (let col = colStart; col <= colEnd; col++) {
+  dayRowCount[`${keyPrefix}${col}-${row}`] = 1;
+}
+
+// solo lo mostramos si está dentro de las 3 filas visibles
+if (row < 3) {
+  spans.push({ event: ev, weekIndex, row, colStart, colEnd });
+}
+
+
       
     });
   });
