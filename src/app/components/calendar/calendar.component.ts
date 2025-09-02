@@ -33,6 +33,7 @@ type EventSpan = {
 })
 export class CalendarComponent implements OnInit {
   private today = new Date();
+  isMobile = signal(false);
   year = signal<number>(this.today.getFullYear());
   month = signal<number>(this.today.getMonth());
   weeks = signal<DayCell[][]>([]);
@@ -50,6 +51,22 @@ export class CalendarComponent implements OnInit {
   random = Math.random();
   ngOnInit(): void {
     this.buildCalendar();
+    this.checkScreen();
+    window.addEventListener('resize', () => this.checkScreen());
+  }
+
+  checkScreen() {
+    this.isMobile.set(window.innerWidth < 640); // <640px = sm en Tailwind
+  }
+
+  getVisibleEvents(events: EventItem[]) {
+    const limit = this.isMobile() ? 2 : 3; // 2 en móvil, 3 en desktop
+    return events.slice(0, limit);
+  }
+
+  getExtraEvents(events: EventItem[]) {
+    const limit = this.isMobile() ? 2 : 3;
+    return events.length > limit ? events.slice(limit) : [];
   }
 
   openEventForm() {
@@ -143,20 +160,23 @@ export class CalendarComponent implements OnInit {
     return this.events().filter(ev => ev.start <= dayIso && ev.end >= dayIso);
   }
 
-  
-eventSpans = computed<EventSpan[]>(() => {
+  eventSpans = computed<EventSpan[]>(() => {
   const spans: EventSpan[] = [];
   const weeks = this.weeks();
   const events = this.events();
 
   if (weeks.length === 0) return spans;
 
+  // --- Definir límite dinámico según tamaño de pantalla ---
+  const isMobile = window.innerWidth < 640; // sm breakpoint en Tailwind
+  const maxVisibleEvents = isMobile ? 2 : 3;
+
   // --- LÓGICA ORIGINAL (NO TOCAR) ---
   const sortedEvents = [...events].sort((a, b) => {
     const diff = a.start.localeCompare(b.start);
     if (diff !== 0) return diff;
     return (new Date(a.end).getTime() - new Date(a.start).getTime()) -
-           (new Date(b.end).getTime() - new Date(b.start).getTime());
+           (new Date(b.end).getTime() - new Date(a.start).getTime());
   });
 
   const dayRowCount: Record<string, number> = {};
@@ -178,60 +198,49 @@ eventSpans = computed<EventSpan[]>(() => {
       const colEnd = week.findIndex(d => d.iso === segEnd.toISOString().slice(0, 10));
       if (colStart === -1 || colEnd === -1) return;
 
-     const keyPrefix = `${weekIndex}-`;
-     let row = 0;
-     
-let col = colStart;
-while (col <= colEnd) {
-  let segmentStart = col;
-  let rowForSegment = 0;
+      const keyPrefix = `${weekIndex}-`;
+      let col = colStart;
+      while (col <= colEnd) {
+        let segmentStart = col;
+        let rowForSegment = 0;
 
-  // buscar primer row libre en esta columna
-  while (dayRowCount[`${keyPrefix}${col}-${rowForSegment}`]) rowForSegment++;
+        // buscar primer row libre en esta columna
+        while (dayRowCount[`${keyPrefix}${col}-${rowForSegment}`]) rowForSegment++;
 
-  // extender segmento mientras haya espacio consecutivo
-  while (col <= colEnd && !dayRowCount[`${keyPrefix}${col}-${rowForSegment}`]) {
-    dayRowCount[`${keyPrefix}${col}-${rowForSegment}`] = 1;
-    col++;
-  }
+        // extender segmento mientras haya espacio consecutivo
+        while (col <= colEnd && !dayRowCount[`${keyPrefix}${col}-${rowForSegment}`]) {
+          dayRowCount[`${keyPrefix}${col}-${rowForSegment}`] = 1;
+          col++;
+        }
 
-  if (rowForSegment < 3) {
-    spans.push({
-      event: ev,
-      weekIndex,
-      row: rowForSegment,
-      colStart: segmentStart,
-      colEnd: col - 1
-    });
-  }
-}
-
-     
-
-
-
-
-      
+        if (rowForSegment < maxVisibleEvents) {
+          spans.push({
+            event: ev,
+            weekIndex,
+            row: rowForSegment,
+            colStart: segmentStart,
+            colEnd: col - 1
+          });
+        }
+      }
     });
   });
-  
-  const dayEventCount: Record<string, number> = {};
 
-  
+  const dayEventCount: Record<string, number> = {};
   weeks.forEach(week => {
     week.forEach(day => {
       dayEventCount[day.iso] = this.getEventsForDay(day.iso).length;
     });
   });
 
+  // Botón "+ View more"
   weeks.forEach((week, weekIndex) => {
     week.forEach((day, colIndex) => {
       const eventCount = dayEventCount[day.iso] || 0;
       
-      if (eventCount > 3) {
-        
+      if (eventCount > maxVisibleEvents) {
         const alreadyHasMore = spans.some(span => 
-          span.event.title === '+ View more' && 
+          span.event.title.startsWith('+ View more') && 
           span.weekIndex === weekIndex && 
           span.colStart === colIndex
         );
@@ -239,7 +248,7 @@ while (col <= colEnd) {
         if (!alreadyHasMore) {
           const moreEvent: EventItem = {
             id: 'more-' + day.iso,
-            title: '+ View more (' + (eventCount - 3) + ')',
+            title: `+ View more (${eventCount - maxVisibleEvents})`,
             start: day.iso,
             end: day.iso
           };
@@ -247,7 +256,7 @@ while (col <= colEnd) {
           spans.push({ 
             event: moreEvent, 
             weekIndex, 
-            row: 3, 
+            row: maxVisibleEvents, 
             colStart: colIndex, 
             colEnd: colIndex 
           });
@@ -258,6 +267,8 @@ while (col <= colEnd) {
 
   return spans;
 });
+
+
 
 openDayModalFromMore(span: EventSpan) {
   const date = span.event.id.replace('more-', '');
