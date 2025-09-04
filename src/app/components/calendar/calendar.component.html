@@ -6,6 +6,14 @@
       <div class="text-xl md:text-2xl font-semibold capitalize">{{ monthLabel() }}</div>
       <button (click)="nextMonth()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
     </div>
+
+    <!-- Botones de vista -->
+    <div class="flex gap-2">
+      <button (click)="view = 'month'" class="px-3 py-1 rounded border hover:bg-gray-50">Mes</button>
+      <button (click)="view = 'week'" class="px-3 py-1 rounded border hover:bg-gray-50">Semana</button>
+      <button (click)="view = 'year'" class="px-3 py-1 rounded border hover:bg-gray-50">Año</button>
+    </div>
+
     <div class="flex gap-2">
       <button (click)="goToday()" class="px-3 py-1 rounded border hover:bg-gray-50">Today</button>
       <button (click)="openEventForm()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">+ Event</button>
@@ -16,56 +24,67 @@
     </div>
   </div>
 
-  <!-- Días de la semana -->
-  <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-black/70">
-    <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-  </div>
-
-  <div class="mt-2 relative overflow-hidden"> <!-- Spans multi-día y single-day -->  
-    <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden"> 
-      <ng-container *ngFor="let span of eventSpans()"> 
-        <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 rounded truncate" 
-        [ngClass]="span.event.color || 'bg-blue-600'"
-        [style.top]="'calc(' + (span.weekIndex * 100 / weeks().length) + '% + ' + (span.row * 22 + 40) + 'px)'" 
-        [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 8px)'" 
-        [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 18px)'" 
-        [style.height]="'20px'" 
-        [title]="span.event.title"
-        [class.pointer-events-auto]="span.event.id.startsWith('more-')"
-      [class.cursor-pointer]="span.event.id.startsWith('more-')"
-      [class.bg-gray-500]="span.event.id.startsWith('more-')"
-      (click)="span.event.id.startsWith('more-') ? openDayModalFromMore(span) : null"
-        > 
-        {{ span.event.title }}
-       </div> 
-      </ng-container> 
+  <!-- VISTA MES -->
+  <div *ngIf="view === 'month'">
+    <!-- Días de la semana -->
+    <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-black/70">
+      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
     </div>
 
-
-
-    <!-- Grilla -->
-    <div class="grid grid-cols-7 gap-1 md:gap-2 relative z-0">
-      <ng-container *ngFor="let week of weeks()">
-        <ng-container *ngFor="let day of week">
-          <div class="h-24 md:h-28 lg:h-32 rounded border-4 border-stone-300 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-blue-100"
-               [ngClass]="{
-                 'opacity-50 bg-gray-50': !day.inCurrentMonth,
-                 'ring-2 ring-blue-400': day.isToday,
-                 'bg-blue-100': selectedDate() === day.iso
-               }"
-               (click)="selectDay(day)">
-            <div class="text-xs md:text-lg font-medium text-right">{{ day.date.getDate() }}</div>
-
-            
+    <div class="mt-2 relative overflow-hidden">
+      <!-- Spans multi-día y single-day -->
+      <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+        <ng-container *ngFor="let span of eventSpans()">
+          <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 rounded truncate"
+            [ngClass]="span.event.color || 'bg-blue-600'"
+            [style.top]="'calc(' + (span.weekIndex * 100 / weeks().length) + '% + ' + (span.row * 22 + 40) + 'px)'"
+            [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 8px)'"
+            [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 18px)'"
+            [style.height]="'20px'"
+            [title]="span.event.title"
+            [class.pointer-events-auto]="span.event.id.startsWith('more-')"
+            [class.cursor-pointer]="span.event.id.startsWith('more-')"
+            [class.bg-gray-500]="span.event.id.startsWith('more-')"
+            (click)="span.event.id.startsWith('more-') ? openDayModalFromMore(span) : null">
+            {{ span.event.title }}
           </div>
         </ng-container>
-      </ng-container>
+      </div>
+
+      <!-- Grilla -->
+      <div class="grid grid-cols-7 gap-1 md:gap-2 relative z-0">
+        <ng-container *ngFor="let week of weeks()">
+          <ng-container *ngFor="let day of week">
+            <div class="h-24 md:h-28 lg:h-32 rounded border-4 border-stone-300 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-blue-100"
+                 [ngClass]="{
+                   'opacity-50 bg-gray-50': !day.inCurrentMonth,
+                   'ring-2 ring-blue-400': day.isToday,
+                   'bg-blue-100': selectedDate() === day.iso
+                 }"
+                 (click)="selectDay(day)">
+              <div class="text-xs md:text-lg font-medium text-right">{{ day.date.getDate() }}</div>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
     </div>
+  </div>
+
+  <!-- VISTA SEMANA -->
+  <div *ngIf="view === 'week'">
+    <!-- Aquí más adelante armamos la grilla semanal -->
+    <p class="text-center text-lg">Vista semanal en construcción 🚧</p>
+  </div>
+
+  <!-- VISTA AÑO -->
+  <div *ngIf="view === 'year'" class="w-full h-full">
+    <app-year-view [year]="selectedYear"></app-year-view>
   </div>
 </div>
 
-<!-- Modal agregar evento -->
-<div *ngIf="showEventForm()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+<!-- Los modales permanecen FUERA para que funcionen en cualquier vista -->
+<ng-container *ngIf="view === 'month'">
+  <div *ngIf="showEventForm()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
   <div class="bg-white p-6 rounded-lg w-80 space-y-4">
     <h2 class="text-lg font-semibold">New event</h2>
     <div *ngIf="eventFormError()" class="text-red-600 text-sm font-medium">
@@ -146,3 +165,4 @@
     </ng-template>
   </div>
 </div>
+</ng-container>

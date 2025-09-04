@@ -1,0 +1,28 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  <div *ngFor="let m of months" class="border rounded-lg p-2 flex flex-col">
+    
+    <!-- Nombre del mes -->
+    <h3 class="text-center font-semibold capitalize mb-2">
+      {{ getMonthName(m) }}
+    </h3>
+
+    <!-- Grilla de días -->
+    <div class="grid grid-cols-7 text-[10px] sm:text-xs text-center gap-1">
+      
+      <!-- Encabezados de días -->
+      <div *ngFor="let day of ['Su','Mo','Tu','We','Th','Fr','Sa']" class="font-bold">
+        {{ day }}
+      </div>
+
+      <!-- Días del mes -->
+      <ng-container *ngFor="let d of getDaysInMonth(m)">
+        <div 
+          class="p-1 rounded hover:bg-blue-100 cursor-pointer border border-transparent hover:border-blue-300"
+        >
+          {{ d.split('-')[2] }}
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+</div>

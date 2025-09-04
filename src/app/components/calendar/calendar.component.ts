@@ -1,6 +1,9 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { NgFor, NgClass, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { YearViewComponent } from '../../calendar/year-view/year-view.component';
+
+
 
 type DayCell = {
   date: Date;
@@ -28,7 +31,7 @@ type EventSpan = {
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [NgFor, NgClass, NgIf, FormsModule],
+  imports: [NgFor, NgClass, NgIf, FormsModule, YearViewComponent],
   templateUrl: './calendar.component.html',
 })
 export class CalendarComponent implements OnInit {
@@ -42,6 +45,8 @@ export class CalendarComponent implements OnInit {
   eventFormError = signal<string | null>(null);
   events = signal<EventItem[]>([]);
   showEventForm = signal<boolean>(false);
+  currentYear = new Date().getFullYear();
+   view: 'month' | 'week' | 'year' = 'month';
   newEvent: {
     color: string; title: string; start: string; end: string 
 } = {
@@ -55,9 +60,17 @@ export class CalendarComponent implements OnInit {
     window.addEventListener('resize', () => this.checkScreen());
   }
 
+  currentView: 'month' | 'year' = 'month';
+
   checkScreen() {
     this.isMobile.set(window.innerWidth < 640); // <640px = sm en Tailwind
   }
+
+
+  get selectedYear(): number {
+  const dateStr = this.selectedDate();
+  return dateStr ? new Date(dateStr).getFullYear() : this.currentYear;
+}
 
   getVisibleEvents(events: EventItem[]) {
     const limit = this.isMobile() ? 2 : 3; // 2 en móvil, 3 en desktop
@@ -146,7 +159,7 @@ export class CalendarComponent implements OnInit {
   }
 
   monthLabel(): string {
-    const dtf = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
+    const dtf = new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' });
     return dtf.format(new Date(this.year(), this.month(), 1));
   }
 
