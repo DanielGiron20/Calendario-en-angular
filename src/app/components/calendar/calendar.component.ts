@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { NgFor, NgClass, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { YearViewComponent } from '../../calendar/year-view/year-view.component';
+import { WeekViewComponent } from '../../calendar/week-view/week-view.component';
 
 
 
@@ -31,7 +32,7 @@ type EventSpan = {
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [NgFor, NgClass, NgIf, FormsModule, YearViewComponent],
+  imports: [NgFor, NgClass, NgIf, FormsModule, YearViewComponent, WeekViewComponent],
   templateUrl: './calendar.component.html',
 })
 export class CalendarComponent implements OnInit {
@@ -41,12 +42,13 @@ export class CalendarComponent implements OnInit {
   month = signal<number>(this.today.getMonth());
   weeks = signal<DayCell[][]>([]);
   selectedDate = signal<string | null>(null);
+
   showDayModal = signal<boolean>(false);
   eventFormError = signal<string | null>(null);
   events = signal<EventItem[]>([]);
   showEventForm = signal<boolean>(false);
   currentYear = new Date().getFullYear();
-   view: 'month' | 'week' | 'year' = 'month';
+  view: 'month' | 'week' | 'year' = 'month';
   newEvent: {
     color: string; title: string; start: string; end: string 
 } = {
@@ -61,6 +63,38 @@ export class CalendarComponent implements OnInit {
   }
 
   currentView: 'month' | 'year' = 'month';
+
+  get currentWeek() {
+  const iso = this.selectedDate();
+  const baseDate = iso ? new Date(iso) : new Date(); // si no hay fecha, usa hoy
+
+  const startOfWeek = new Date(baseDate);
+  startOfWeek.setDate(baseDate.getDate() - baseDate.getDay()); // domingo
+
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    return {
+      iso: d.toISOString().slice(0, 10),
+      date: d,
+      isToday: d.toDateString() === new Date().toDateString()
+    };
+  });
+}
+
+prevWeek() {
+  const iso = this.selectedDate();
+  const d = iso ? new Date(iso) : new Date();
+  d.setDate(d.getDate() - 7);
+  this.selectedDate.set(d.toISOString().slice(0, 10));
+}
+
+nextWeek() {
+  const iso = this.selectedDate();
+  const d = iso ? new Date(iso) : new Date();
+  d.setDate(d.getDate() + 7);
+  this.selectedDate.set(d.toISOString().slice(0, 10));
+}
 
   checkScreen() {
     this.isMobile.set(window.innerWidth < 640); // <640px = sm en Tailwind
@@ -92,6 +126,9 @@ export class CalendarComponent implements OnInit {
     };
     this.showEventForm.set(true);
   }
+
+
+
 
   saveEvent() {
   // Validación 1 titulo
