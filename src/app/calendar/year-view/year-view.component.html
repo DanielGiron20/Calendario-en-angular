@@ -1,8 +1,10 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-  <div *ngFor="let m of months" class="border rounded-lg p-2 flex flex-col">
-    
+  <div *ngFor="let m of months"
+       (click)="selectMonth(m)"
+       class="border rounded-lg p-2 flex flex-col cursor-pointer hover:shadow-lg transition">
+
     <!-- Nombre del mes -->
-    <h3 class="text-center font-semibold capitalize mb-2">
+    <h3 class="text-center font-semibold capitalize mb-2 hover:text-blue-600">
       {{ getMonthName(m) }}
     </h3>
 
@@ -17,7 +19,7 @@
       <!-- Días del mes -->
       <ng-container *ngFor="let d of getDaysInMonth(m)">
         <div 
-          class="p-1 rounded hover:bg-blue-100 cursor-pointer border border-transparent hover:border-blue-300"
+          class="p-1 rounded hover:bg-blue-100 border border-transparent hover:border-blue-300"
         >
           {{ d.split('-')[2] }}
         </div>

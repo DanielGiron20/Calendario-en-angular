@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgFor, NgClass, NgIf } from '@angular/common';
 @Component({
   selector: 'app-year-view',
@@ -9,9 +9,12 @@ import { NgFor, NgClass, NgIf } from '@angular/common';
 })
 export class YearViewComponent {
   @Input() year: number = new Date().getFullYear();
-
+@Output() monthSelected = new EventEmitter<number>();
   months = Array.from({ length: 12 }, (_, i) => i); // 0 = enero, 11 = diciembre
 
+   selectMonth(monthIndex: number) {
+    this.monthSelected.emit(monthIndex); // 0 = Enero ... 11 = Diciembre
+  }
   getMonthName(monthIndex: number): string {
     return new Date(this.year, monthIndex, 1).toLocaleString('default', { month: 'long' });
   }

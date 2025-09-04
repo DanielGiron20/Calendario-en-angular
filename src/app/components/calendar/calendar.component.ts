@@ -56,6 +56,7 @@ export class CalendarComponent implements OnInit {
   color: ''
 };
   random = Math.random();
+  
   ngOnInit(): void {
     this.buildCalendar();
     this.checkScreen();
@@ -78,6 +79,7 @@ export class CalendarComponent implements OnInit {
     week.some(day => day.iso === sel)
   ) || [];
 }
+
 
 
 prevWeek() {
@@ -128,7 +130,11 @@ nextWeek() {
 
 
 
-
+switchToMonth(monthIndex: number) {
+  this.month.set(monthIndex);
+  this.view = 'month';
+  this.buildCalendar(); // para que reconstruya la grilla de ese mes
+}
   saveEvent() {
   // Validación 1 titulo
   if (!this.newEvent.title.trim()) {

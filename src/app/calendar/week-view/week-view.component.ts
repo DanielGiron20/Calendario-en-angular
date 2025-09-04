@@ -27,7 +27,7 @@ type WeekDay = {
 @Component({
   selector: 'app-week-view',
   standalone: true,
-  imports: [NgFor, NgClass],
+  imports: [NgFor, NgClass,],
   templateUrl: './week-view.component.html',
 })
 export class WeekViewComponent {

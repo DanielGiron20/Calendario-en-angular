@@ -12,12 +12,17 @@
         <button *ngIf="view === 'week'" (click)="nextWeek()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
     </div>
 
-    <!-- Botones de vista -->
-    <div class="flex gap-2">
-      <button (click)="view = 'month'" class="px-3 py-1 text-sm md:text-lg  rounded border hover:bg-gray-50">Month</button>
-      <button (click)="view = 'week'" class="px-3 py-1 text-sm md:text-lg  rounded border hover:bg-gray-50">Week</button>
-      <button (click)="view = 'year'" class="px-3 py-1 text-sm md:text-lg  rounded border hover:bg-gray-50">Year</button>
-    </div>
+   
+    <!-- Selector de vista -->
+<div class="relative">
+  <select [(ngModel)]="view"
+          class="px-3 py-1 rounded border hover:bg-gray-50 focus:ring-2 focus:ring-blue-400">
+    <option value="month">Month</option>
+    <option value="week">week</option>
+    <option value="year">Year</option>
+  </select>
+</div>
+
 
     <div class="flex gap-2">
       <button (click)="goToday()" class="px-3 py-1 rounded border hover:bg-gray-50 text-sm md:text-lg ">Today</button>
@@ -90,7 +95,9 @@
 
   <!-- VISTA AÑO -->
   <div *ngIf="view === 'year'" class="w-full h-full">
-    <app-year-view [year]="selectedYear"></app-year-view>
+    <app-year-view [year]="selectedYear"
+    (monthSelected)="switchToMonth($event)"
+    ></app-year-view>
   </div>
 </div>
 
