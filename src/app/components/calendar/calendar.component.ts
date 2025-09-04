@@ -62,39 +62,38 @@ export class CalendarComponent implements OnInit {
     window.addEventListener('resize', () => this.checkScreen());
   }
 
-  currentView: 'month' | 'year' = 'month';
-
-  get currentWeek() {
-  const iso = this.selectedDate();
-  const baseDate = iso ? new Date(iso) : new Date(); // si no hay fecha, usa hoy
-
-  const startOfWeek = new Date(baseDate);
-  startOfWeek.setDate(baseDate.getDate() - baseDate.getDay()); // domingo
-
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(startOfWeek);
-    d.setDate(startOfWeek.getDate() + i);
-    return {
-      iso: d.toISOString().slice(0, 10),
-      date: d,
-      isToday: d.toDateString() === new Date().toDateString()
-    };
-  });
+  onWeekDaySelected(iso: string) {
+  this.selectedDate.set(iso);
+  this.showDayModal.set(true); // esto hace que se abra el modal al hacer clic en un día
 }
 
+
+  currentView: 'month' | 'year' = 'month';
+
+  get currentWeek(): DayCell[] {
+  const sel = this.selectedDate();
+  if (!sel) return this.weeks()[0] || [];
+
+  return this.weeks().find(week => 
+    week.some(day => day.iso === sel)
+  ) || [];
+}
+
+
 prevWeek() {
-  const iso = this.selectedDate();
-  const d = iso ? new Date(iso) : new Date();
+  if (!this.selectedDate()) return;
+  const d = new Date(this.selectedDate()!);
   d.setDate(d.getDate() - 7);
-  this.selectedDate.set(d.toISOString().slice(0, 10));
+  this.selectedDate.set(d.toISOString().slice(0,10));
 }
 
 nextWeek() {
-  const iso = this.selectedDate();
-  const d = iso ? new Date(iso) : new Date();
+  if (!this.selectedDate()) return;
+  const d = new Date(this.selectedDate()!);
   d.setDate(d.getDate() + 7);
-  this.selectedDate.set(d.toISOString().slice(0, 10));
+  this.selectedDate.set(d.toISOString().slice(0,10));
 }
+
 
   checkScreen() {
     this.isMobile.set(window.innerWidth < 640); // <640px = sm en Tailwind

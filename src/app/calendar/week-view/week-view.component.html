@@ -1,25 +1,39 @@
-<div class="p-4">
-  <!-- Encabezado semana -->
-  <div class="flex items-center justify-between mb-4">
-    <button (click)="prevWeek()" class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
-    <div class="font-semibold text-lg">
-      Week of {{ currentWeek()[0].date.toLocaleDateString() }}
-    </div>
-    <button (click)="nextWeek()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
-  </div>
-
-  <!-- Días -->
-  <div class="grid grid-cols-7 gap-1">
-    <div *ngFor="let day of currentWeek()" class="border rounded p-2 h-32 flex flex-col overflow-hidden">
-      <div class="text-sm font-bold text-center">{{ day.date.toLocaleDateString('en-US', { weekday: 'short' }) }}</div>
-      <div class="flex-1 mt-1 flex flex-col gap-1 overflow-y-auto">
-        <div *ngFor="let ev of getEventsForDay(day.iso)"
-             class="text-xs px-2 py-1 rounded truncate text-white"
-             [ngClass]="ev.color || 'bg-blue-600'"
-             title="{{ ev.title }}">
-          {{ ev.title }}
-        </div>
+<div class="relative">
+    <div class="absolute inset-0 z-10 pointer-events-none">
+    <ng-container *ngFor="let span of weekEventSpans()">
+      <div class="absolute text-xs px-2 py-1 rounded truncate text-white"
+           [ngClass]="span.event.color || 'bg-blue-600'"
+           [style.top.px]="span.row * 22 + 50"
+           [style.left.%]="(span.colStart / 7) * 100 + 0.5"
+           [style.width.%]="((span.colEnd - span.colStart + 1)/7) * 100 -1.5"
+           [style.height.px]="20"
+           title="{{ span.event.title }}">
+        {{ span.event.title }}
       </div>
+    </ng-container>
+  </div>
+<div class="p-4">
+  <!-- Días -->
+   <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-black/70">
+      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+  <div class="grid grid-cols-7 gap-1">
+    <div *ngFor="let day of currentWeek()"
+         (click)="selectDay(day.iso)"
+         class="border-4 rounded p-2 h-32 flex flex-col overflow-hidden cursor-pointer hover:bg-blue-100"
+         [class.bg-blue-100]="day.iso === selectedDate"
+         [class.ring-2]="day.iso === selectedDate"
+         [class.ring-blue-500]="day.iso === selectedDate"
+         [class.opacity-70]="!day.isToday">
+
+      <!-- Número del día -->
+      <div class="text-sm font-medium text-right">
+        {{ day.date.getDate() }}
+      </div>
+
+      
+    
     </div>
   </div>
+</div>
 </div>
