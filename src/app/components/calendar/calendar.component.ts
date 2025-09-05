@@ -19,6 +19,8 @@ type EventItem = {
   start: string; // 'YYYY-MM-DD'
   end: string;   // 'YYYY-MM-DD'
   color?: string;
+  hstart: string; // 'HH:mm'
+  hend: string;   // 'HH:mm'
 };
 
 type EventSpan = {
@@ -49,11 +51,12 @@ export class CalendarComponent implements OnInit {
   showEventForm = signal<boolean>(false);
   currentYear = new Date().getFullYear();
   view: 'month' | 'week' | 'year' = 'month';
+  
   newEvent: {
-    color: string; title: string; start: string; end: string 
+    color: string; title: string; start: string; end: string; hstart: string; hend: string
 } = {
   title: '', start: '', end: '',
-  color: ''
+  color: '', hstart: '', hend: ''
 };
   random = Math.random();
   
@@ -123,7 +126,9 @@ nextWeek() {
       title: '',
       start: selected ?? this.today.toISOString().slice(0, 10),
       end: selected ?? this.today.toISOString().slice(0, 10),
-      color: ''
+      color: '',
+      hstart: '',
+      hend: ''
     };
     this.showEventForm.set(true);
   }
@@ -147,13 +152,21 @@ switchToMonth(monthIndex: number) {
     this.eventFormError.set('The end date cannot be less than the start date.');
     return;
   }
+  //validacion 3 horas
+  if (this.newEvent.hstart === this.newEvent.hend ||
+      this.newEvent.hend < this.newEvent.hstart) {
+    this.eventFormError.set('The end time cannot be earlier than the start time.');
+    return;
+  }
 
-  
-  
-  const newEventWithId = { 
-    ...this.newEvent, 
+  const newEventWithId: EventItem = { 
     id: Math.random().toString(36).substr(2, 9),
-    color: this.newEvent.color || 'bg-blue-600'
+    title: this.newEvent.title,
+    start: this.newEvent.start,
+    end: this.newEvent.end,
+    color: this.newEvent.color || 'bg-blue-600',
+    hstart: this.newEvent.hstart,
+    hend: this.newEvent.hend
   };
 
   this.events.update(evts => [...evts, newEventWithId]);
@@ -194,6 +207,7 @@ switchToMonth(monthIndex: number) {
   }
 
   goToday() {
+    this.view = 'month';
     this.year.set(this.today.getFullYear());
     this.month.set(this.today.getMonth());
     this.selectedDate.set(this.today.toISOString().slice(0, 10));
@@ -305,7 +319,9 @@ switchToMonth(monthIndex: number) {
             id: 'more-' + day.iso,
             title: `+ View more (${eventCount - maxVisibleEvents})`,
             start: day.iso,
-            end: day.iso
+            end: day.iso,
+            hstart: '',
+            hend: ''
           };
           
           spans.push({ 

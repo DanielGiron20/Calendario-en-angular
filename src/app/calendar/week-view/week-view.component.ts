@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, computed, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, computed, signal, SimpleChanges } from '@angular/core';
 import { NgFor, NgClass } from '@angular/common';
 
 type EventItem = {
@@ -38,6 +38,8 @@ export class WeekViewComponent {
   @Output() openEventForm = new EventEmitter<void>();
   @Input() eventSpans: EventSpan[] = [];
 
+  
+
 weekEventSpans(): EventSpan[] {
   const weekIsos = this.currentWeek().map(d => d.iso);
   return this.eventSpans.filter(span =>
@@ -72,23 +74,7 @@ const date = new Date(year, month - 1, day)
     this.internalDate.set(this.selectedDate);
   }
 
-  prevWeek() {
-    if (!this.internalDate()) return;
-    const d = new Date(this.internalDate()!);
-    d.setDate(d.getDate() - 7);
-    const iso = d.toISOString().slice(0, 10);
-    this.internalDate.set(iso);
-    this.selectedDateChange.emit(iso);
-  }
-
-  nextWeek() {
-    if (!this.internalDate()) return;
-    const d = new Date(this.internalDate()!);
-    d.setDate(d.getDate() + 7);
-    const iso = d.toISOString().slice(0, 10);
-    this.internalDate.set(iso);
-    this.selectedDateChange.emit(iso);
-  }
+  
 
   getEventsForDay(dayIso: string) {
     return this.events.filter(ev => ev.start <= dayIso && ev.end >= dayIso);
@@ -105,8 +91,6 @@ addEvent(iso: string) {
   this.selectedDateChange.emit(iso); // sincroniza
   this.openEventForm.emit();          // abre el modal de evento
 }
-
-
 
 
 }
