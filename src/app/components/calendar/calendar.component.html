@@ -27,7 +27,7 @@
 
     <div class="flex gap-2">
       <button (click)="goToday()" class="px-3 py-1 rounded border hover:bg-gray-50 text-sm md:text-lg ">Today</button>
-      <button (click)="showEventForm.set(!showEventForm())" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm md:text-lg ">+ Event</button>
+      <button (click)="openEventForm()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm md:text-lg ">+ Event</button>
       <button (click)="openDayModal()" [disabled]="!selectedDate()"
         class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-lg ">
         View
