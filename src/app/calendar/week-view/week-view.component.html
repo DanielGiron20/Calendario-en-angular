@@ -3,8 +3,8 @@
     <ng-container *ngFor="let span of weekEventSpans()">
       <div class="absolute text-xs px-2 py-1 rounded truncate text-white"
            [ngClass]="span.event.color || 'bg-blue-600'"
-           [style.top.px]="span.row * 22 + 50"
-           [style.left.%]="(span.colStart / 7) * 100 + 0.5"
+           [style.top.px]="span.row * 22 + 70"
+           [style.left.%]="(span.colStart / 7) * 100 + 1"
            [style.width.%]="((span.colEnd - span.colStart + 1)/7) * 100 -1.5"
            [style.height.px]="20"
            title="{{ span.event.title }}">
@@ -18,7 +18,7 @@
       <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
     </div>
   <div class="grid grid-cols-7 gap-1">
-    <div *ngFor="let day of currentWeek()"
+    <div *ngFor="let day of currentWeek"
          (click)="selectDay(day.iso)"
          class="border-4 rounded p-2 h-32 flex flex-col overflow-hidden cursor-pointer hover:bg-blue-100"
          [class.bg-blue-100]="day.iso === selectedDate"

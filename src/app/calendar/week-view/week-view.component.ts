@@ -33,15 +33,17 @@ type WeekDay = {
 export class WeekViewComponent {
   @Input() events: EventItem[] = [];
   @Input() selectedDate: string | null = null;
+  @Input() eventSpans: EventSpan[] = [];
+
   @Output() selectedDateChange = new EventEmitter<string>();
   @Output() openDayModal = new EventEmitter<void>();
   @Output() openEventForm = new EventEmitter<void>();
-  @Input() eventSpans: EventSpan[] = [];
+  
 
   
 
 weekEventSpans(): EventSpan[] {
-  const weekIsos = this.currentWeek().map(d => d.iso);
+  const weekIsos = this.currentWeek.map(d => d.iso);
   return this.eventSpans.filter(span =>
     span.colStart < weekIsos.length && span.colEnd >= 0
   );
@@ -50,29 +52,27 @@ weekEventSpans(): EventSpan[] {
   // Señal interna para recalcular la semana cuando cambia selectedDate
   private internalDate = signal<string | null>(this.selectedDate);
 
-  currentWeek = computed<WeekDay[]>(() => {
-    const [year, month, day] = (this.selectedDate || new Date().toISOString().slice(0,10)).split('-').map(Number);
-const date = new Date(year, month - 1, day)
+ get currentWeek(): WeekDay[] {
+  const iso = this.selectedDate || new Date().toISOString().slice(0, 10);
+  const [year, month, day] = iso.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
 
-    // Ajuste para evitar desfase de zona horaria
-    const startOfWeek = new Date(date);
-    startOfWeek.setDate(date.getDate() - date.getDay());
+  const startOfWeek = new Date(date);
+  startOfWeek.setDate(date.getDate() - date.getDay());
 
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(startOfWeek);
-      d.setDate(startOfWeek.getDate() + i);
-      return {
-        iso: d.toISOString().slice(0, 10),
-        date: d,
-        isToday: d.toDateString() === new Date().toDateString(),
-      };
-    });
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    return {
+      iso: d.toISOString().slice(0, 10),
+      date: d,
+      isToday: d.toDateString() === new Date().toDateString(),
+    };
   });
+}
 
-  ngOnChanges() {
-    // Actualizamos señal interna cuando el input cambia
-    this.internalDate.set(this.selectedDate);
-  }
+
+  
 
   
 
