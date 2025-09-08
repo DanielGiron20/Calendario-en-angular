@@ -27,7 +27,7 @@
 
     <div class="flex gap-2">
       <button (click)="goToday()" class="px-3 py-1 rounded border hover:bg-gray-50 text-sm md:text-lg ">Today</button>
-      <button (click)="openEventForm()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm md:text-lg ">+ Event</button>
+      <button (click)="showEventForm.set(!showEventForm())" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm md:text-lg ">+ Event</button>
       <button (click)="openDayModal()" [disabled]="!selectedDate()"
         class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-lg ">
         View
@@ -103,63 +103,63 @@
 </div>
 
 
-  <div *ngIf="showEventForm()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-  <div class="bg-white p-6 rounded-lg w-80 space-y-4">
-    <h2 class="text-lg text-center font-semibold">New event</h2>
-    <div *ngIf="eventFormError()" class="text-red-600 text-sm font-medium">
-  {{ eventFormError() }}
-   </div>
+ <div *ngIf="showEventForm()"
+       class="absolute top-16 mt-1 right-0 bg-white border shadow-lg p-4 rounded w-80 z-50">
 
+    <h2 class="text-lg text-center font-semibold">New event</h2>
+    
+    <div *ngIf="eventFormError()" class="text-red-600 text-sm font-medium">
+      {{ eventFormError() }}
+    </div>
 
     <!-- Título -->
-    <input type="text" [(ngModel)]="newEvent.title" placeholder="Event title" class="w-full border rounded px-2 py-1" (input)="eventFormError.set(null)"  />
+    <input type="text" [(ngModel)]="newEvent.title" placeholder="Event title" 
+           class="w-full border rounded px-2 py-1" (input)="eventFormError.set(null)"  />
 
     <!-- Fecha y hora de inicio -->
-<label class="text-sm">Start:</label>
-<div class="flex gap-2">
-  <input type="date" [(ngModel)]="newEvent.start" class="w-1/2 border rounded px-2 py-1" />
-  <input type="time" [(ngModel)]="newEvent.hstart" class="w-1/2 border rounded px-2 py-1" />
-</div>
+    <label class="text-sm">Start:</label>
+    <div class="flex gap-2">
+      <input type="date" [(ngModel)]="newEvent.start" class="w-1/2 border rounded px-2 py-1" />
+      <input type="time" [(ngModel)]="newEvent.hstart" class="w-1/2 border rounded px-2 py-1" />
+    </div>
 
-<!-- Fecha y hora de fin -->
-<label class="text-sm">End:</label>
-<div class="flex gap-2">
-  <input type="date" [(ngModel)]="newEvent.end" class="w-1/2 border rounded px-2 py-1" />
-  <input type="time" [(ngModel)]="newEvent.hend" class="w-1/2 border rounded px-2 py-1" />
-</div>
-
-    
+    <!-- Fecha y hora de fin -->
+    <label class="text-sm">End:</label>
+    <div class="flex gap-2">
+      <input type="date" [(ngModel)]="newEvent.end" class="w-1/2 border rounded px-2 py-1" />
+      <input type="time" [(ngModel)]="newEvent.hend" class="w-1/2 border rounded px-2 py-1" />
+    </div>
 
     <!-- Selector de color -->
     <label class="text-sm">Color:</label>
     <div class="flex gap-2">
-  <button type="button" 
-          (click)="newEvent.color='bg-blue-500'" 
-          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-blue-500'}" 
-          class="w-6 h-6 rounded bg-blue-500"></button>
+      <button type="button" 
+              (click)="newEvent.color='bg-blue-500'" 
+              [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-blue-500'}" 
+              class="w-6 h-6 rounded bg-blue-500"></button>
 
-  <button type="button" 
-          (click)="newEvent.color='bg-green-500'" 
-          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-green-500'}" 
-          class="w-6 h-6 rounded bg-green-500"></button>
+      <button type="button" 
+              (click)="newEvent.color='bg-green-500'" 
+              [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-green-500'}" 
+              class="w-6 h-6 rounded bg-green-500"></button>
 
-  <button type="button" 
-          (click)="newEvent.color='bg-orange-500'" 
-          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-orange-500'}" 
-          class="w-6 h-6 rounded bg-orange-500"></button>
+      <button type="button" 
+              (click)="newEvent.color='bg-orange-500'" 
+              [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-orange-500'}" 
+              class="w-6 h-6 rounded bg-orange-500"></button>
 
-  <button type="button" 
-          (click)="newEvent.color='bg-rose-400'" 
-          [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-rose-400'}" 
-          class="w-6 h-6 rounded bg-rose-400"></button>
-  </div>
+      <button type="button" 
+              (click)="newEvent.color='bg-rose-400'" 
+              [ngClass]="{'ring-2 ring-black': newEvent.color === 'bg-rose-400'}" 
+              class="w-6 h-6 rounded bg-rose-400"></button>
+    </div>
 
-    <div class="flex justify-end gap-2">
+    <div class="flex justify-end gap-2 mt-2">
       <button (click)="showEventForm.set(false)" class="px-3 py-1 rounded border">Cancel</button>
       <button (click)="saveEvent()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
     </div>
+
   </div>
-       </div>
 
 
 <!-- Modal detalle día -->
