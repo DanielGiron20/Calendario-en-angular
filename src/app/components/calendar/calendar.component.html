@@ -1,40 +1,43 @@
 <div class="p-4 md:p-6">
- 
-  <!-- Encabezado -->
-  <div class="flex items-center justify-between mb-4">
-    <div class="flex items-center gap-3">
-      <button *ngIf="view === 'month'" (click)="prevMonth()" class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
-      <button *ngIf="view === 'week'" (click)="prevWeek()"  class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
-      <div *ngIf="view === 'month'" class="text-lg md:text-xl font-semibold capitalize">{{ monthLabel() }}</div>
-      <div *ngIf="view === 'week'" class="text-lg md:text-xl font-semibold capitalize">
-    Week of {{ currentWeek[0].iso }} <br> to {{ currentWeek[6].iso }}
-  </div>
-      <button *ngIf="view === 'month'" (click)="nextMonth()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
-        <button *ngIf="view === 'week'" (click)="nextWeek()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
+ <!-- Encabezado -->
+<div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+
+  <!-- Flechas y título -->
+  <div class="flex items-center gap-3 flex-shrink-0">
+    <button *ngIf="view === 'month'" (click)="prevMonth()" class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
+    <button *ngIf="view === 'week'" (click)="prevWeek()" class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
+
+    <div *ngIf="view === 'month'" class="text-lg md:text-xl font-semibold capitalize">{{ monthLabel() }}</div>
+    <div *ngIf="view === 'week'" class="text-lg md:text-xl font-semibold capitalize text-center">
+      Week of {{ currentWeek[0].iso }} <br> to {{ currentWeek[6].iso }}
     </div>
 
-   
+    <button *ngIf="view === 'month'" (click)="nextMonth()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
+    <button *ngIf="view === 'week'" (click)="nextWeek()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
+  </div>
+
+  <!-- Selector de vista + botones -->
+  <div class="flex flex-wrap gap-2 items-center order-last md:order-none">
     <!-- Selector de vista -->
-<div class="relative">
-  <select [(ngModel)]="view"
-          class="px-3 py-1 rounded border hover:bg-gray-50 focus:ring-2 focus:ring-blue-400">
-    <option value="month">Month</option>
-    <option value="week">week</option>
-    <option value="year">Year</option>
-  </select>
-</div>
-
-
-    <div class="flex gap-2">
-      <button (click)="goToday()" class="px-3 py-1 rounded border hover:bg-gray-50 text-sm md:text-lg ">Today</button>
-      <button (click)="openEventForm()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm md:text-lg ">+ Event</button>
-      <button (click)="openDayModal()" [disabled]="!selectedDate()"
-        class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-lg ">
-        View
-      </button>
+    <div class="relative">
+      <select [(ngModel)]="view"
+              class="px-3 py-1 rounded border hover:bg-gray-50 focus:ring-2 focus:ring-blue-400">
+        <option value="month">Month</option>
+        <option value="week">Week</option>
+        <option value="year">Year</option>
+      </select>
     </div>
+
+    <!-- Botones -->
+    <button (click)="goToday()" class="px-3 py-1 rounded border hover:bg-gray-50 text-sm md:text-lg">Today</button>
+    <button (click)="openEventForm()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm md:text-lg">+ Event</button>
+    <button (click)="openDayModal()" [disabled]="!selectedDate()"
+      class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-lg">
+      View
+    </button>
   </div>
 
+</div>
   <!-- VISTA MES -->
   <div *ngIf="view === 'month'">
     <!-- Días de la semana -->
