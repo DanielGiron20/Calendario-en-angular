@@ -25,6 +25,7 @@
         <option value="month">Month</option>
         <option value="week">Week</option>
         <option value="year">Year</option>
+        <option value="day">Day</option>
       </select>
     </div>
 
@@ -83,6 +84,16 @@
       </div>
     </div>
   </div>
+
+  <ng-container *ngIf="view === 'day'">
+  <app-day-view 
+    [selectedDate]="selectedDate()" 
+    [events]="eventsForSelectedDate" 
+    (deleteEvent)="deleteEvent($event.id)"
+    >
+  </app-day-view>
+</ng-container>
+
 
   <!-- VISTA SEMANA -->
   <app-week-view 

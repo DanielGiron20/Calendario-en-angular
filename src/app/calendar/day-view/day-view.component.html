@@ -1,0 +1,29 @@
+<div class="day-view flex flex-col h-full">
+  <!-- Header -->
+  <div class="flex justify-between items-center p-2 border-b">
+    <h2 class="font-semibold text-lg">Events for {{ selectedDate }}</h2>
+    <button (click)="onAdd()" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">+ Event</button>
+  </div>
+
+  <!-- Contenedor de horas y eventos -->
+  <div class="flex flex-1 overflow-y-auto">
+    <!-- Horas -->
+    <div class="w-16 border-r flex flex-col">
+      <div *ngFor="let h of hours" class="h-16 border-b text-xs text-gray-500 flex items-center justify-end pr-1">
+        {{ h }}:00
+      </div>
+    </div>
+
+    <!-- Eventos -->
+    <div class="flex-1 relative">
+      <div *ngFor="let ev of dayEvents"
+           class="absolute left-0 right-0 px-2 py-1 rounded text-white cursor-pointer"
+           [ngClass]="ev.color || 'bg-blue-500'"
+           [style.top.px]="ev.startHour * 64"
+           [style.height.px]="(ev.endHour - ev.startHour) * 64">
+        {{ ev.title }}
+        <button (click)="onDelete(ev)" class="ml-2 text-red-200 hover:text-red-400">×</button>
+      </div>
+    </div>
+  </div>
+</div>

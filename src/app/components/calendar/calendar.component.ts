@@ -3,7 +3,7 @@ import { NgFor, NgClass, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { YearViewComponent } from '../../calendar/year-view/year-view.component';
 import { WeekViewComponent } from '../../calendar/week-view/week-view.component';
-
+import { DayViewComponent } from '../../calendar/day-view/day-view.component';
 
 
 type DayCell = {
@@ -34,7 +34,7 @@ type EventSpan = {
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [NgFor, NgClass, NgIf, FormsModule, YearViewComponent, WeekViewComponent],
+  imports: [NgFor, NgClass, NgIf, FormsModule, YearViewComponent, WeekViewComponent, DayViewComponent],
   templateUrl: './calendar.component.html',
 })
 export class CalendarComponent implements OnInit {
@@ -50,7 +50,7 @@ export class CalendarComponent implements OnInit {
   events = signal<EventItem[]>([]);
   showEventForm = signal<boolean>(false);
   currentYear = new Date().getFullYear();
-  view: 'month' | 'week' | 'year' = 'month';
+  view: 'month' | 'week' | 'year' | 'day' = 'month';
   
   newEvent: {
     color: string; title: string; start: string; end: string; hstart: string; hend: string
@@ -132,6 +132,12 @@ nextWeek() {
     };
     this.showEventForm.set(true);
   }
+
+  get eventsForSelectedDate(): EventItem[] {
+  const sel = this.selectedDate();
+  if (!sel) return [];
+  return this.events().filter(ev => ev.start.slice(0, 10) <= sel && ev.end.slice(0, 10) >= sel);
+}
 
 
 
