@@ -10,13 +10,13 @@
   >
     <div *ngFor="let m of months"
          (click)="selectMonth(m)"
-         class="border rounded-lg p-2 flex flex-col cursor-pointer hover:shadow-lg transition">
+         class="border rounded-lg p-2 flex flex-col cursor-pointer bg-primary-blue hover:shadow-lg transition">
 
       <h3 class="text-center text-white font-semibold capitalize mb-2 bg-secondary-blue hover:bg-primary-orange">
         {{ getMonthName(m) }}
       </h3>
 
-      <div class="grid grid-cols-7 text-[10px] sm:text-xs text-center text-white gap-1">
+      <div class="grid grid-cols-7 text-[10px] sm:text-xs text-center bg-primary-blue text-white gap-1">
         <div *ngFor="let day of ['Su','Mo','Tu','We','Th','Fr','Sa']" class="font-bold">
           {{ day }}
         </div>

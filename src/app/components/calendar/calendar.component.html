@@ -1,4 +1,4 @@
-<div class="p-4 md:p-6 min-h-screen bg-primary-blue "
+<div class="p-4 md:p-6 min-h-screen bg-white "
      (touchstart)="onTouchStart($event)"
      (touchend)="onTouchEnd($event)">
 
@@ -10,13 +10,13 @@
 <div class="flex items-center gap-3 flex-shrink-0 relative overflow-hidden w-64">
 
   <!-- Botón Prev -->
-  <button *ngIf="view === 'month'" (click)="prevMonth()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">←</button>
-  <button *ngIf="view === 'week'" (click)="prevWeek()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">←</button>
-  <button *ngIf="view === 'year'" (click)="prevYear()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">←</button>
+  <button *ngIf="view === 'month'" (click)="prevMonth()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange hover:text-white">←</button>
+  <button *ngIf="view === 'week'" (click)="prevWeek()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange">←</button>
+  <button *ngIf="view === 'year'" (click)="prevYear()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange">←</button>
 
   <!-- Contenedor animado -->
   <div 
-    class="flex-1 text-center text-lg md:text-xl text-white font-semibold capitalize transition-transform duration-300 ease-out"
+    class="flex-1 text-center text-lg md:text-xl text-primary-blue font-semibold capitalize transition-transform duration-300 ease-out"
     [ngClass]="{
       'translate-x-0 opacity-100': true,
       'translate-x-full opacity-0 md:-translate-x-full': animating && direction === 'prev',
@@ -32,9 +32,9 @@
   </div>
 
   <!-- Botón Next -->
-  <button *ngIf="view === 'month'" (click)="nextMonth()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">→</button>
-  <button *ngIf="view === 'week'" (click)="nextWeek()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">→</button>
-  <button *ngIf="view === 'year'" (click)="nextYear()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">→</button>
+  <button *ngIf="view === 'month'" (click)="nextMonth()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange hover:text-white">→</button>
+  <button *ngIf="view === 'week'" (click)="nextWeek()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange">→</button>
+  <button *ngIf="view === 'year'" (click)="nextYear()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange">→</button>
 </div>
 
 
@@ -43,7 +43,7 @@
     <!-- Selector de vista -->
     <div class="relative">
       <select [(ngModel)]="view"
-              class="px-3 py-1 rounded border-2 bg-primary-blue text-white hover:bg-primary-orange text-sm md:text-lg ">
+              class="px-3 py-1 rounded border-2 border-primary-blue bg-white text-primary-blue hover:bg-primary-orange hover:text-white hover:border-primary-orange text-sm md:text-lg ">
         <option value="month">Month</option>
         <option value="week">Week</option>
         <option value="year">Year</option>
@@ -52,18 +52,18 @@
     </div>
 
     <!-- Botones -->
-    <button (click)="goToday()" class="px-3 py-1 text-white rounded border-2 hover:bg-primary-orange text-sm md:text-lg">Today</button>
-    <button (click)="openEventForm()" class="px-3 py-1 rounded border-2 bg-primary-blue text-white hover:bg-primary-orange text-sm md:text-lg">+ Event</button>
+    <button (click)="goToday()" class="px-3 py-1 bg-white text-primary-blue border-primary-blue rounded border-2 hover:bg-primary-orange hover:text-white hover:border-primary-orange text-sm md:text-lg">Today</button>
+    <button (click)="openEventForm()" class="px-3 py-1 rounded border-2 bg-white text-primary-blue border-primary-blue hover:bg-primary-orange hover:text-white hover:border-primary-orange text-sm md:text-lg">+ Event</button>
     <button *ngIf="view !== 'day'" 
         (click)="openDayModal()" 
         [disabled]="!selectedDate()"
-        class="px-3 py-1 rounded bg-primary-blue border-2 hover:bg-primary-orange text-white disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-lg">
+        class="px-3 py-1 rounded bg-white border-primary-blue border-2 hover:bg-primary-orange hover:text-white hover:border-primary-orange text-primary-blue disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-lg">
   View
 </button>
 <div *ngIf="view === 'day'" class="flex gap-2 items-center">
   <input type="date" [(ngModel)]="dayPickerDate" 
          (change)="goToDay()"
-         class="px-2 py-1 rounded border" />
+         class="px-2 py-1 text-primary-blue bg-white hover:bg-primary-orange hover:text-white hover:border-primary-orange rounded border" />
 </div>
   </div>
 
@@ -72,7 +72,7 @@
   <!-- VISTA MES -->
 <div *ngIf="view === 'month'">
   <!-- Días de la semana -->
-  <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-white">
+  <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-primary-blue">
     <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
   </div>
 
@@ -87,9 +87,9 @@
     >
       <ng-container *ngFor="let week of weeks()">
         <ng-container *ngFor="let day of week">
-          <div class="h-24 md:h-28 lg:h-32 rounded border-4 text-white border-stone-300 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-secondary-blue"
+          <div class="h-24 md:h-28 lg:h-32 rounded border-4 bg-primary-blue text-white border-stone-300 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-secondary-blue"
                [ngClass]="{
-                 'opacity-50 bg-gray-400': !day.inCurrentMonth,
+                 'opacity-50 bg-secondary-blue': !day.inCurrentMonth,
                  'ring-2 ring-primary-orange': day.isToday,
                  'bg-secondary-blue': selectedDate() === day.iso
                }"
@@ -162,7 +162,7 @@
  <div *ngIf="showEventForm()"
        class="absolute top-16 mt-1 right-0 bg-white border shadow-lg p-4 rounded w-80 z-50">
 
-    <h2 class="text-lg text-center font-semibold">New event</h2>
+    <h2 class="text-lg text-center text-primary-blue font-semibold">New event</h2>
     
     <div *ngIf="eventFormError()" class="text-red-600 text-sm font-medium">
       {{ eventFormError() }}
@@ -173,14 +173,14 @@
            class="w-full border rounded px-2 py-1" (input)="eventFormError.set(null)"  />
 
     <!-- Fecha y hora de inicio -->
-    <label class="text-sm">Start:</label>
+    <label class="text-sm ">Start:</label>
     <div class="flex gap-2">
       <input type="date" [(ngModel)]="newEvent.start" class="w-1/2 border rounded px-2 py-1" />
       <input type="time" [(ngModel)]="newEvent.hstart" class="w-1/2 border rounded px-2 py-1" />
     </div>
 
     <!-- Fecha y hora de fin -->
-    <label class="text-sm">End:</label>
+    <label class="text-sm ">End:</label>
     <div class="flex gap-2">
       <input type="date" [(ngModel)]="newEvent.end" class="w-1/2 border rounded px-2 py-1" />
       <input type="time" [(ngModel)]="newEvent.hend" class="w-1/2 border rounded px-2 py-1" />
@@ -211,8 +211,8 @@
     </div>
 
     <div class="flex justify-end gap-2 mt-2">
-      <button (click)="showEventForm.set(false)" class="px-3 py-1 rounded border">Cancel</button>
-      <button (click)="saveEvent()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
+      <button (click)="showEventForm.set(false)" class="px-3 py-1 rounded border-2 text-primary-blue hover:bg-primary-orange hover:text-white hover:border-primary-orange">Cancel</button>
+      <button (click)="saveEvent()" class="px-3 py-1 rounded border-2 text-primary-blue hover:bg-primary-orange hover:text-white hover:border-primary-orange">Save</button>
     </div>
 
   </div>
@@ -222,7 +222,7 @@
 <div *ngIf="showDayModal()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
   <div class="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto space-y-4">
     <div class="flex justify-between items-center">
-      <h2 class="text-lg font-semibold">Events of {{ selectedDate() }}</h2>
+      <h2 class="text-lg font-semibold text-primary-blue">Events of {{ selectedDate() }}</h2>
       <button (click)="closeDayModal()" class="text-gray-500 hover:text-gray-700">✕</button>
     </div>
 

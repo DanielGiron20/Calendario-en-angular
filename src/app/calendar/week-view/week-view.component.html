@@ -26,7 +26,7 @@
   >
     <div *ngFor="let day of currentWeek"
          (click)="selectDay(day.iso)"
-         class="border-4 rounded p-2 min-h-32 flex flex-col overflow-visible cursor-pointer hover:bg-secondary-blue"
+         class="border-4 rounded p-2 min-h-32 flex flex-col overflow-visible cursor-pointer bg-primary-blue hover:bg-secondary-blue"
          [class.bg-secondary-blue]="day.iso === selectedDate"
          [class.ring-2]="day.iso === selectedDate"
          [class.ring-primary-orange]="day.iso === selectedDate"
