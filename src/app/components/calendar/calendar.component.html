@@ -41,10 +41,17 @@
     <!-- Botones -->
     <button (click)="goToday()" class="px-3 py-1 rounded border hover:bg-gray-50 text-sm md:text-lg">Today</button>
     <button (click)="openEventForm()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm md:text-lg">+ Event</button>
-    <button (click)="openDayModal()" [disabled]="!selectedDate()"
-      class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-lg">
-      View
-    </button>
+    <button *ngIf="view !== 'day'" 
+        (click)="openDayModal()" 
+        [disabled]="!selectedDate()"
+        class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-lg">
+  View
+</button>
+<div *ngIf="view === 'day'" class="flex gap-2 items-center">
+  <input type="date" [(ngModel)]="dayPickerDate" 
+         (change)="goToDay()"
+         class="px-2 py-1 rounded border" />
+</div>
   </div>
 
 </div>

@@ -44,6 +44,7 @@ export class CalendarComponent implements OnInit {
   month = signal<number>(this.today.getMonth());
   weeks = signal<DayCell[][]>([]);
   selectedDate = signal<string | null>(null);
+  dayPickerDate: string | null = null;
 
   showDayModal = signal<boolean>(false);
   eventFormError = signal<string | null>(null);
@@ -106,6 +107,14 @@ nextWeek() {
   const d = new Date(this.selectedDate()!);
   d.setDate(d.getDate() + 7);
   this.selectedDate.set(d.toISOString().slice(0,10));
+}
+
+
+goToDay() {
+  if (this.dayPickerDate) {
+    this.selectedDate.set(this.dayPickerDate); // selecciona el día
+    this.view = 'day'; // asegura que esté en la vista "day"
+  }
 }
 
 
