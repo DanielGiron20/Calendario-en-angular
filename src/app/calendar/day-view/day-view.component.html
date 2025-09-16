@@ -1,29 +1,25 @@
-<div class="day-view flex flex-col h-full">
-  <!-- Header -->
-  <div class="flex justify-between items-center p-2 border-b">
-    <h2 class="font-semibold text-lg">Events for {{ selectedDate }}</h2>
-    <button (click)="onAdd()" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">+ Event</button>
-  </div>
+<div class="p-4 bg-white rounded shadow-md w-full max-w-xl mx-auto">
+  <h2 class="text-lg font-semibold mb-4">
+    Events for {{ selectedDate || 'No date selected' }}
+  </h2>
 
-  <!-- Contenedor de horas y eventos -->
-  <div class="flex flex-1 overflow-y-auto">
-    <!-- Horas -->
-    <div class="w-16 border-r flex flex-col">
-      <div *ngFor="let h of hours" class="h-16 border-b text-xs text-gray-500 flex items-center justify-end pr-1">
-        {{ h }}:00
+  <ng-container *ngIf="eventsForDay.length > 0; else noEvents">
+    <div *ngFor="let ev of eventsForDay" class="px-3 py-2 rounded flex justify-between items-center bg-blue-100 mb-2">
+      <div class="flex-1">
+        <div class="font-medium">{{ ev.title }}</div>
+        <div class="text-xs text-gray-700">
+          {{ ev.start }} {{ ev.hstart }} - {{ ev.end }} {{ ev.hend }}
+        </div>
       </div>
-    </div>
 
-    <!-- Eventos -->
-    <div class="flex-1 relative">
-      <div *ngFor="let ev of dayEvents"
-           class="absolute left-0 right-0 px-2 py-1 rounded text-white cursor-pointer"
-           [ngClass]="ev.color || 'bg-blue-500'"
-           [style.top.px]="ev.startHour * 64"
-           [style.height.px]="(ev.endHour - ev.startHour) * 64">
-        {{ ev.title }}
-        <button (click)="onDelete(ev)" class="ml-2 text-red-200 hover:text-red-400">×</button>
-      </div>
+      <button (click)="onDeleteEvent(ev.id)" 
+              class="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">
+        Delete
+      </button>
     </div>
-  </div>
+  </ng-container>
+
+  <ng-template #noEvents>
+    <p class="text-gray-500 text-sm">No events for this day.</p>
+  </ng-template>
 </div>

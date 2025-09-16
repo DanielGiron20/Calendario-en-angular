@@ -1,4 +1,7 @@
-<div class="p-4 md:p-6">
+<div class="p-4 md:p-6"
+     (touchstart)="onTouchStart($event)"
+     (touchend)="onTouchEnd($event)">
+
  <!-- Encabezado -->
 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
 
@@ -6,14 +9,20 @@
   <div class="flex items-center gap-3 flex-shrink-0">
     <button *ngIf="view === 'month'" (click)="prevMonth()" class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
     <button *ngIf="view === 'week'" (click)="prevWeek()" class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
+    <button *ngIf="view === 'year'" (click)="prevYear()" class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
 
     <div *ngIf="view === 'month'" class="text-lg md:text-xl font-semibold capitalize">{{ monthLabel() }}</div>
     <div *ngIf="view === 'week'" class="text-lg md:text-xl font-semibold capitalize text-center">
       Week of {{ currentWeek[0].iso }} <br> to {{ currentWeek[6].iso }}
     </div>
+    <div *ngIf="view === 'year'" class="text-lg md:text-xl font-semibold capitalize">
+     {{ selectedYear }}
+     </div>
+
 
     <button *ngIf="view === 'month'" (click)="nextMonth()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
     <button *ngIf="view === 'week'" (click)="nextWeek()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
+    <button *ngIf="view === 'year'" (click)="nextYear()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
   </div>
 
   <!-- Selector de vista + botones -->
@@ -89,7 +98,7 @@
   <app-day-view 
     [selectedDate]="selectedDate()" 
     [events]="eventsForSelectedDate" 
-    (deleteEvent)="deleteEvent($event.id)"
+    (deleteEvent)="deleteEvent($event)"
     >
   </app-day-view>
 </ng-container>

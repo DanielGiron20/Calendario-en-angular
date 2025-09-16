@@ -16,7 +16,7 @@ export class YearViewComponent {
     this.monthSelected.emit(monthIndex); // 0 = Enero ... 11 = Diciembre
   }
   getMonthName(monthIndex: number): string {
-    return new Date(this.year, monthIndex, 1).toLocaleString('default', { month: 'long' });
+    return new Date(this.year, monthIndex, 1).toLocaleString('en-US', { month: 'long' });
   }
 
   getDaysInMonth(monthIndex: number): string[] {

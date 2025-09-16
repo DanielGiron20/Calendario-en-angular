@@ -84,6 +84,15 @@ export class CalendarComponent implements OnInit {
 }
 
 
+prevYear() {
+  this.year.set(this.year() - 1);
+}
+
+nextYear() {
+  this.year.set(this.year() + 1);
+}
+
+
 
 prevWeek() {
   if (!this.selectedDate()) return;
@@ -100,15 +109,54 @@ nextWeek() {
 }
 
 
+
   checkScreen() {
     this.isMobile.set(window.innerWidth < 640); // <640px = sm en Tailwind
   }
 
+private touchStartX = 0;
+private touchEndX = 0;
+
+onTouchStart(event: TouchEvent) {
+  this.touchStartX = event.changedTouches[0].screenX;
+}
+
+onTouchEnd(event: TouchEvent) {
+  this.touchEndX = event.changedTouches[0].screenX;
+  this.handleSwipe();
+}
+
+handleSwipe() {
+  const diffX = this.touchEndX - this.touchStartX;
+
+  if (Math.abs(diffX) < 50) return; // ignorar swipecorto
+
+  if (diffX < 0) {
+   
+    if (this.view === 'month') this.nextMonth();
+    else if (this.view === 'week') this.nextWeek();
+    else if (this.view === 'year') this.nextYear();
+  } else {
+   
+    if (this.view === 'month') this.prevMonth();
+    else if (this.view === 'week') this.prevWeek();
+    else if (this.view === 'year') this.prevYear();
+  }
+}
+
+
+
 
   get selectedYear(): number {
-  const dateStr = this.selectedDate();
-  return dateStr ? new Date(dateStr).getFullYear() : this.currentYear;
+  return this.year();
 }
+
+
+
+//   get selectedYear(): number {
+//   const dateStr = this.selectedDate();
+//   return dateStr ? new Date(dateStr).getFullYear() : this.currentYear;
+// }
 
   getVisibleEvents(events: EventItem[]) {
     const limit = this.isMobile() ? 2 : 3; // 2 en móvil, 3 en desktop
