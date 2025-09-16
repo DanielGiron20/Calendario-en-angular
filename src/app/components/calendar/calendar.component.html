@@ -1,4 +1,4 @@
-<div class="p-4 md:p-6"
+<div class="p-4 md:p-6 min-h-screen bg-primary-blue "
      (touchstart)="onTouchStart($event)"
      (touchend)="onTouchEnd($event)">
 
@@ -6,31 +6,44 @@
 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
 
   <!-- Flechas y título -->
-  <div class="flex items-center gap-3 flex-shrink-0">
-    <button *ngIf="view === 'month'" (click)="prevMonth()" class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
-    <button *ngIf="view === 'week'" (click)="prevWeek()" class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
-    <button *ngIf="view === 'year'" (click)="prevYear()" class="px-2 py-1 rounded border hover:bg-gray-50">←</button>
+  <!-- Flechas y título -->
+<div class="flex items-center gap-3 flex-shrink-0 relative overflow-hidden w-64">
 
-    <div *ngIf="view === 'month'" class="text-lg md:text-xl font-semibold capitalize">{{ monthLabel() }}</div>
-    <div *ngIf="view === 'week'" class="text-lg md:text-xl font-semibold capitalize text-center">
-      Week of {{ currentWeek[0].iso }} <br> to {{ currentWeek[6].iso }}
-    </div>
-    <div *ngIf="view === 'year'" class="text-lg md:text-xl font-semibold capitalize">
-     {{ selectedYear }}
-     </div>
+  <!-- Botón Prev -->
+  <button *ngIf="view === 'month'" (click)="prevMonth()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">←</button>
+  <button *ngIf="view === 'week'" (click)="prevWeek()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">←</button>
+  <button *ngIf="view === 'year'" (click)="prevYear()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">←</button>
 
-
-    <button *ngIf="view === 'month'" (click)="nextMonth()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
-    <button *ngIf="view === 'week'" (click)="nextWeek()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
-    <button *ngIf="view === 'year'" (click)="nextYear()" class="px-2 py-1 rounded border hover:bg-gray-50">→</button>
+  <!-- Contenedor animado -->
+  <div 
+    class="flex-1 text-center text-lg md:text-xl text-white font-semibold capitalize transition-transform duration-300 ease-out"
+    [ngClass]="{
+      'translate-x-0 opacity-100': true,
+      'translate-x-full opacity-0 md:-translate-x-full': animating && direction === 'prev',
+      'translate-x-full opacity-0': animating && direction === 'next'
+    }"
+    (transitionend)="animating = false"
+  >
+    <ng-container [ngSwitch]="view">
+      <span *ngSwitchCase="'month'">{{ monthLabel() }}</span>
+      <span *ngSwitchCase="'week'">Week of {{ currentWeek[0].iso }} <br> to {{ currentWeek[6].iso }}</span>
+      <span *ngSwitchCase="'year'">{{ selectedYear }}</span>
+    </ng-container>
   </div>
+
+  <!-- Botón Next -->
+  <button *ngIf="view === 'month'" (click)="nextMonth()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">→</button>
+  <button *ngIf="view === 'week'" (click)="nextWeek()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">→</button>
+  <button *ngIf="view === 'year'" (click)="nextYear()" class="px-2 py-1 text-white rounded border hover:bg-primary-orange">→</button>
+</div>
+
 
   <!-- Selector de vista + botones -->
   <div class="flex flex-wrap gap-2 items-center order-last md:order-none">
     <!-- Selector de vista -->
     <div class="relative">
       <select [(ngModel)]="view"
-              class="px-3 py-1 rounded border hover:bg-gray-50 focus:ring-2 focus:ring-blue-400">
+              class="px-3 py-1 rounded border-2 bg-primary-blue text-white hover:bg-primary-orange text-sm md:text-lg ">
         <option value="month">Month</option>
         <option value="week">Week</option>
         <option value="year">Year</option>
@@ -39,12 +52,12 @@
     </div>
 
     <!-- Botones -->
-    <button (click)="goToday()" class="px-3 py-1 rounded border hover:bg-gray-50 text-sm md:text-lg">Today</button>
-    <button (click)="openEventForm()" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm md:text-lg">+ Event</button>
+    <button (click)="goToday()" class="px-3 py-1 text-white rounded border-2 hover:bg-primary-orange text-sm md:text-lg">Today</button>
+    <button (click)="openEventForm()" class="px-3 py-1 rounded border-2 bg-primary-blue text-white hover:bg-primary-orange text-sm md:text-lg">+ Event</button>
     <button *ngIf="view !== 'day'" 
         (click)="openDayModal()" 
         [disabled]="!selectedDate()"
-        class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-lg">
+        class="px-3 py-1 rounded bg-primary-blue border-2 hover:bg-primary-orange text-white disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-lg">
   View
 </button>
 <div *ngIf="view === 'day'" class="flex gap-2 items-center">
@@ -55,51 +68,60 @@
   </div>
 
 </div>
-  <!-- VISTA MES -->
-  <div *ngIf="view === 'month'">
-    <!-- Días de la semana -->
-    <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-black/70">
-      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-    </div>
 
-    <div class="mt-2 relative overflow-hidden">
-      <!-- Spans multi-día y single-day -->
-      <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-        <ng-container *ngFor="let span of eventSpans()">
-          <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 rounded truncate"
-            [ngClass]="span.event.color || 'bg-blue-600'"
-            [style.top]="'calc(' + (span.weekIndex * 100 / weeks().length) + '% + ' + (span.row * 22 + 40) + 'px)'"
-            [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 8px)'"
-            [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 18px)'"
-            [style.height]="'20px'"
-            [title]="span.event.title"
-            [class.pointer-events-auto]="span.event.id.startsWith('more-')"
-            [class.cursor-pointer]="span.event.id.startsWith('more-')"
-            [class.bg-gray-500]="span.event.id.startsWith('more-')"
-            (click)="span.event.id.startsWith('more-') ? openDayModalFromMore(span) : null">
-            {{ span.event.title }}
+  <!-- VISTA MES -->
+<div *ngIf="view === 'month'">
+  <!-- Días de la semana -->
+  <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-white">
+    <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+  </div>
+
+  <!-- Contenedor de grilla con animación -->
+  <div class="mt-2 relative overflow-hidden h-[calc(28*6+2rem)]">
+    
+    <!-- Grilla animada -->
+    <div 
+      class="grid grid-cols-7 gap-1 md:gap-2 relative z-0 transition-transform duration-300 ease-out"
+      [ngStyle]="{'transform': animating ? (direction === 'next' ? 'translateX(-100%)' : 'translateX(100%)') : 'translateX(0)'}"
+      (transitionend)="animating = false"
+    >
+      <ng-container *ngFor="let week of weeks()">
+        <ng-container *ngFor="let day of week">
+          <div class="h-24 md:h-28 lg:h-32 rounded border-4 text-white border-stone-300 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-secondary-blue"
+               [ngClass]="{
+                 'opacity-50 bg-gray-400': !day.inCurrentMonth,
+                 'ring-2 ring-primary-orange': day.isToday,
+                 'bg-secondary-blue': selectedDate() === day.iso
+               }"
+               (click)="selectDay(day)">
+            <div class="text-xs md:text-lg font-medium text-right">{{ day.date.getDate() }}</div>
           </div>
         </ng-container>
-      </div>
-
-      <!-- Grilla -->
-      <div class="grid grid-cols-7 gap-1 md:gap-2 relative z-0">
-        <ng-container *ngFor="let week of weeks()">
-          <ng-container *ngFor="let day of week">
-            <div class="h-24 md:h-28 lg:h-32 rounded border-4 border-stone-300 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-blue-100"
-                 [ngClass]="{
-                   'opacity-50 bg-gray-50': !day.inCurrentMonth,
-                   'ring-2 ring-blue-400': day.isToday,
-                   'bg-blue-100': selectedDate() === day.iso
-                 }"
-                 (click)="selectDay(day)">
-              <div class="text-xs md:text-lg font-medium text-right">{{ day.date.getDate() }}</div>
-            </div>
-          </ng-container>
-        </ng-container>
-      </div>
+      </ng-container>
     </div>
+
+    <!-- Spans de eventos -->
+    <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+      <ng-container *ngFor="let span of eventSpans()">
+        <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 rounded truncate"
+          [ngClass]="span.event.color || 'bg-blue-600'"
+          [style.top]="'calc(' + (span.weekIndex * 100 / weeks().length) + '% + ' + (span.row * 22 + 40) + 'px)'"
+          [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 8px)'"
+          [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 18px)'"
+          [style.height]="'20px'"
+          [title]="span.event.title"
+          [class.pointer-events-auto]="span.event.id.startsWith('more-')"
+          [class.cursor-pointer]="span.event.id.startsWith('more-')"
+          [class.bg-gray-500]="span.event.id.startsWith('more-')"
+          (click)="span.event.id.startsWith('more-') ? openDayModalFromMore(span) : null">
+          {{ span.event.title }}
+        </div>
+      </ng-container>
+    </div>
+
   </div>
+</div>
+
 
   <ng-container *ngIf="view === 'day'">
   <app-day-view 
@@ -120,6 +142,8 @@
     [eventSpans]="eventSpans()"
     (openDayModal)="showDayModal.set(true)"
     (openEventForm)="showEventForm.set(true)"
+    [animating]="animating"
+    [direction]="direction"
     >
    </app-week-view>
 
@@ -128,6 +152,8 @@
   <div *ngIf="view === 'year'" class="w-full h-full">
     <app-year-view [year]="selectedYear"
     (monthSelected)="switchToMonth($event)"
+    [animating]="animating"
+    [direction]="direction"
     ></app-year-view>
   </div>
 </div>

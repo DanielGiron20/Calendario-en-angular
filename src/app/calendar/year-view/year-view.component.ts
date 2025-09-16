@@ -3,13 +3,16 @@ import { NgFor, NgClass, NgIf } from '@angular/common';
 @Component({
   selector: 'app-year-view',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, NgClass],
   templateUrl: './year-view.component.html',
   styleUrls: ['./year-view.component.css']
 })
 export class YearViewComponent {
   @Input() year: number = new Date().getFullYear();
 @Output() monthSelected = new EventEmitter<number>();
+@Input() animating: boolean = false;
+@Input() direction: 'prev' | 'next' | null = null;
+
   months = Array.from({ length: 12 }, (_, i) => i); // 0 = enero, 11 = diciembre
 
    selectMonth(monthIndex: number) {

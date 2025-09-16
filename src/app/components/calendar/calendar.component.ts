@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
-import { NgFor, NgClass, NgIf } from '@angular/common';
+import { NgFor, NgClass, NgIf, NgSwitch, NgSwitchCase, NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { YearViewComponent } from '../../calendar/year-view/year-view.component';
 import { WeekViewComponent } from '../../calendar/week-view/week-view.component';
@@ -34,7 +34,7 @@ type EventSpan = {
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [NgFor, NgClass, NgIf, FormsModule, YearViewComponent, WeekViewComponent, DayViewComponent],
+  imports: [NgFor, NgClass, NgIf, NgStyle, NgSwitch,FormsModule, NgSwitchCase,YearViewComponent, WeekViewComponent, DayViewComponent],
   templateUrl: './calendar.component.html',
 })
 export class CalendarComponent implements OnInit {
@@ -61,10 +61,13 @@ export class CalendarComponent implements OnInit {
 };
   random = Math.random();
   
+direction: 'next' | 'prev' | null = null;
+animating = false;
   ngOnInit(): void {
     this.buildCalendar();
     this.checkScreen();
     window.addEventListener('resize', () => this.checkScreen());
+    this.selectedDate.set(this.today.toISOString().slice(0, 10));
   }
 
   onWeekDaySelected(iso: string) {
@@ -85,12 +88,17 @@ export class CalendarComponent implements OnInit {
 }
 
 
+
 prevYear() {
   this.year.set(this.year() - 1);
+  this.direction = 'prev';
+  this.animating = true;
 }
 
 nextYear() {
   this.year.set(this.year() + 1);
+   this.direction = 'next';
+  this.animating = true;
 }
 
 
@@ -100,6 +108,8 @@ prevWeek() {
   const d = new Date(this.selectedDate()!);
   d.setDate(d.getDate() - 7);
   this.selectedDate.set(d.toISOString().slice(0,10));
+   this.direction = 'prev';
+  this.animating = true;
 }
 
 nextWeek() {
@@ -107,13 +117,15 @@ nextWeek() {
   const d = new Date(this.selectedDate()!);
   d.setDate(d.getDate() + 7);
   this.selectedDate.set(d.toISOString().slice(0,10));
+   this.direction = 'next';
+  this.animating = true;
 }
 
 
 goToDay() {
   if (this.dayPickerDate) {
     this.selectedDate.set(this.dayPickerDate); // selecciona el día
-    this.view = 'day'; // asegura que esté en la vista "day"
+    this.view = 'day'; // asegura que esté en la vista diaria
   }
 }
 
@@ -260,6 +272,8 @@ switchToMonth(monthIndex: number) {
     if (m < 0) { this.month.set(11); this.year.set(this.year() - 1); }
     else this.month.set(m);
     this.buildCalendar();
+     this.direction = 'prev';
+  this.animating = true;
   }
 
   nextMonth() {
@@ -267,6 +281,8 @@ switchToMonth(monthIndex: number) {
     if (m > 11) { this.month.set(0); this.year.set(this.year() + 1); }
     else this.month.set(m);
     this.buildCalendar();
+     this.direction = 'next';
+  this.animating = true;
   }
 
   goToday() {

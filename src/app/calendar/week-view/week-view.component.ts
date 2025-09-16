@@ -34,6 +34,8 @@ export class WeekViewComponent {
   @Input() events: EventItem[] = [];
   @Input() selectedDate: string | null = null;
   @Input() eventSpans: EventSpan[] = [];
+  @Input() animating: boolean = false;
+  @Input() direction: 'prev' | 'next' | null = null;
 
   @Output() selectedDateChange = new EventEmitter<string>();
   @Output() openDayModal = new EventEmitter<void>();

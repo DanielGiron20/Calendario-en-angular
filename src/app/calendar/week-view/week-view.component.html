@@ -14,26 +14,28 @@
   </div>
 <div class="p-4">
   <!-- Días -->
-   <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-black/70">
-      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-    </div>
-  <div class="grid grid-cols-7 gap-1">
+   <div class="overflow-hidden relative">
+  <div 
+    class="grid grid-cols-7 gap-1 transition-transform duration-300 ease-out"
+    [ngClass]="{
+      'translate-x-0': !animating,
+      '-translate-x-full': animating && direction === 'prev',
+      'translate-x-full': animating && direction === 'next'
+    }"
+    (transitionend)="animating = false"
+  >
     <div *ngFor="let day of currentWeek"
          (click)="selectDay(day.iso)"
-         class="border-4 rounded p-2 min-h-32 flex flex-col overflow-visible cursor-pointer hover:bg-blue-100"
-         [class.bg-blue-100]="day.iso === selectedDate"
+         class="border-4 rounded p-2 min-h-32 flex flex-col overflow-visible cursor-pointer hover:bg-secondary-blue"
+         [class.bg-secondary-blue]="day.iso === selectedDate"
          [class.ring-2]="day.iso === selectedDate"
-         [class.ring-blue-500]="day.iso === selectedDate"
-         [class.opacity-70]="!day.isToday">
+         [class.ring-primary-orange]="day.iso === selectedDate"
+         [class.opacity-80]="!day.isToday">
 
       <!-- Número del día -->
-      <div class="text-sm font-medium text-right">
+      <div class="text-sm font-medium text-right text-white">
         {{ day.date.getDate() }}
       </div>
-
-      
-    
     </div>
   </div>
-</div>
 </div>
