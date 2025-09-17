@@ -308,28 +308,40 @@ switchToMonth(monthIndex: number) {
     return this.events().filter(ev => ev.start <= dayIso && ev.end >= dayIso);
   }
 
-  eventSpans = computed<EventSpan[]>(() => {
+  
+
+
+
+
+
+
+eventSpans = computed<EventSpan[]>(() => {
   const spans: EventSpan[] = [];
   const weeks = this.weeks();
   const events = this.events();
 
   if (weeks.length === 0) return spans;
 
-  // --- Definir límite dinámico según tamaño de pantalla ---
-  const isMobile = window.innerWidth < 640; // sm breakpoint en Tailwind
+  const isMobile = window.innerWidth < 640;
   const maxVisibleEvents = isMobile ? 2 : 3;
 
-  // --- LÓGICA ORIGINAL (NO TOCAR) ---
+  
+  const occ: boolean[][][] = weeks.map(week => week.map(() => new Array(maxVisibleEvents).fill(false)));
+
+  // registro de colocaciones por evento/semana/col: key = `${eventId}-${weekIndex}-${col}`
+  const placed = new Set<string>();
+
+  // ordenar eventos (mantener tu criterio original)
   const sortedEvents = [...events].sort((a, b) => {
     const diff = a.start.localeCompare(b.start);
     if (diff !== 0) return diff;
+  
     return (new Date(a.end).getTime() - new Date(a.start).getTime()) -
-           (new Date(b.end).getTime() - new Date(a.start).getTime());
+           (new Date(b.end).getTime() - new Date(b.start).getTime());
   });
 
-  const dayRowCount: Record<string, number> = {};
-
-  sortedEvents.forEach(ev => {
+  // 1) intentar segmentos contiguos (solo marcar filas < maxVisibleEvents)
+  for (const ev of sortedEvents) {
     const startDate = new Date(ev.start);
     const endDate = new Date(ev.end);
 
@@ -346,34 +358,98 @@ switchToMonth(monthIndex: number) {
       const colEnd = week.findIndex(d => d.iso === segEnd.toISOString().slice(0, 10));
       if (colStart === -1 || colEnd === -1) return;
 
-      const keyPrefix = `${weekIndex}-`;
       let col = colStart;
       while (col <= colEnd) {
-        let segmentStart = col;
-        let rowForSegment = 0;
+        let placedThisIteration = false;
 
-        // buscar primer row libre en esta columna
-        while (dayRowCount[`${keyPrefix}${col}-${rowForSegment}`]) rowForSegment++;
+        // buscar una fila disponible (0..maxVisibleEvents-1) 
+        for (let row = 0; row < maxVisibleEvents; row++) {
+          // calcular hasta qué columna puedo extender en esta fila
+          let endCol = col;
+          while (endCol <= colEnd && !occ[weekIndex][endCol][row]) endCol++;
+          endCol--; // endCol es última columna libre en esta fila
 
-        // extender segmento mientras haya espacio consecutivo
-        while (col <= colEnd && !dayRowCount[`${keyPrefix}${col}-${rowForSegment}`]) {
-          dayRowCount[`${keyPrefix}${col}-${rowForSegment}`] = 1;
-          col++;
+          if (endCol >= col) {
+           
+            for (let c = col; c <= endCol; c++) {
+              occ[weekIndex][c][row] = true;
+              placed.add(`${ev.id}-${weekIndex}-${c}`);
+            }
+
+            spans.push({
+              event: ev,
+              weekIndex,
+              row,
+              colStart: col,
+              colEnd: endCol
+            });
+
+            col = endCol + 1; 
+            placedThisIteration = true;
+            break;
+          }
         }
 
-        if (rowForSegment < maxVisibleEvents) {
+        if (!placedThisIteration) {
+          // no hay fila contigua disponible empezando en 'col' --> avanzar un día
+          col++;
+        }
+      }
+    });
+  }
+
+  // 2) intentar colocar por día (single-day) donde el evento aún no fue colocado
+  for (const ev of sortedEvents) {
+    const startDate = new Date(ev.start);
+    const endDate = new Date(ev.end);
+
+    weeks.forEach((week, weekIndex) => {
+      const weekStart = new Date(week[0].iso);
+      const weekEnd = new Date(week[6].iso);
+
+      if (endDate < weekStart || startDate > weekEnd) return;
+
+      const segStart = startDate > weekStart ? startDate : weekStart;
+      const segEnd = endDate < weekEnd ? endDate : weekEnd;
+
+      const colStart = week.findIndex(d => d.iso === segStart.toISOString().slice(0, 10));
+      const colEnd = week.findIndex(d => d.iso === segEnd.toISOString().slice(0, 10));
+      if (colStart === -1 || colEnd === -1) return;
+
+      for (let c = colStart; c <= colEnd; c++) {
+        const placedKey = `${ev.id}-${weekIndex}-${c}`;
+        if (placed.has(placedKey)) continue; // ya colocado (por un segmento)
+
+        // contar cuántos spans ya hay en ese día
+//const spansInDay = spans.filter(s => s.weekIndex === weekIndex && s.colStart === c && s.colEnd === c);
+//if (spansInDay.length >= maxVisibleEvents) continue; // ya se llenó este día
+
+
+        // intentar encontrar una fila libre en esa columna
+        let freeRow = -1;
+        for (let r = 0; r < maxVisibleEvents; r++) {
+          if (!occ[weekIndex][c][r]) {
+            freeRow = r;
+            break;
+          }
+        }
+
+        if (freeRow !== -1) {
+          occ[weekIndex][c][freeRow] = true;
+          placed.add(placedKey);
           spans.push({
             event: ev,
             weekIndex,
-            row: rowForSegment,
-            colStart: segmentStart,
-            colEnd: col - 1
+            row: freeRow,
+            colStart: c,
+            colEnd: c
           });
         }
       }
     });
-  });
+  }
 
+  
   const dayEventCount: Record<string, number> = {};
   weeks.forEach(week => {
     week.forEach(day => {
@@ -381,15 +457,14 @@ switchToMonth(monthIndex: number) {
     });
   });
 
-  // Botón "+ View more"
   weeks.forEach((week, weekIndex) => {
     week.forEach((day, colIndex) => {
       const eventCount = dayEventCount[day.iso] || 0;
-      
+
       if (eventCount > maxVisibleEvents) {
-        const alreadyHasMore = spans.some(span => 
-          span.event.title.startsWith('+ View more') && 
-          span.weekIndex === weekIndex && 
+        const alreadyHasMore = spans.some(span =>
+          span.event.title.startsWith('+ View more') &&
+          span.weekIndex === weekIndex &&
           span.colStart === colIndex
         );
 
@@ -402,13 +477,13 @@ switchToMonth(monthIndex: number) {
             hstart: '',
             hend: ''
           };
-          
-          spans.push({ 
-            event: moreEvent, 
-            weekIndex, 
-            row: maxVisibleEvents, 
-            colStart: colIndex, 
-            colEnd: colIndex 
+
+          spans.push({
+            event: moreEvent,
+            weekIndex,
+            row: maxVisibleEvents,
+            colStart: colIndex,
+            colEnd: colIndex
           });
         }
       }
@@ -417,6 +492,15 @@ switchToMonth(monthIndex: number) {
 
   return spans;
 });
+
+
+
+
+
+
+
+
+
 
 
 
