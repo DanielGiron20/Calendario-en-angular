@@ -1,5 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgFor, NgClass, NgIf } from '@angular/common';
+
+function formatLocalDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 @Component({
   selector: 'app-year-view',
   standalone: true,
@@ -26,7 +33,7 @@ export class YearViewComponent {
     const days: string[] = [];
     const date = new Date(this.year, monthIndex, 1);
     while (date.getMonth() === monthIndex) {
-      days.push(date.toISOString().slice(0, 10)); // formato YYYY-MM-DD
+      days.push(formatLocalDate(date)); // formato YYYY-MM-DD
       date.setDate(date.getDate() + 1);
     }
     return days;

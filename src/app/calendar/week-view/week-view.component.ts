@@ -24,6 +24,13 @@ type WeekDay = {
   isToday: boolean;
 };
 
+function formatLocalDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 @Component({
   selector: 'app-week-view',
   standalone: true,
@@ -36,7 +43,7 @@ export class WeekViewComponent {
   @Input() eventSpans: EventSpan[] = [];
   @Input() animating: boolean = false;
   @Input() direction: 'prev' | 'next' | null = null;
-
+  @Input() currentWeekIndex: number = -1;
   @Output() selectedDateChange = new EventEmitter<string>();
   @Output() openDayModal = new EventEmitter<void>();
   @Output() openEventForm = new EventEmitter<void>();
@@ -44,7 +51,21 @@ export class WeekViewComponent {
 
   
 
+// weekEventSpans(): EventSpan[] {
+//   const weekIsos = this.currentWeek.map(d => d.iso);
+//   return this.eventSpans.filter(span =>
+//     span.colStart < weekIsos.length && span.colEnd >= 0
+//   );
+// }
+
 weekEventSpans(): EventSpan[] {
+  // Si recibimos el índice de la semana del padre, filtramos por él (lo correcto)
+  if (this.currentWeekIndex >= 0) {
+    return this.eventSpans.filter(span => span.weekIndex === this.currentWeekIndex);
+  }
+
+  // Fallback seguro (si por alguna razón no se pasó el índice): 
+  // devolvemos spans que intersectan la semana actual (menos preciso, pero evita crashes)
   const weekIsos = this.currentWeek.map(d => d.iso);
   return this.eventSpans.filter(span =>
     span.colStart < weekIsos.length && span.colEnd >= 0
@@ -54,8 +75,9 @@ weekEventSpans(): EventSpan[] {
   // Señal interna para recalcular la semana cuando cambia selectedDate
   private internalDate = signal<string | null>(this.selectedDate);
 
+  
  get currentWeek(): WeekDay[] {
-  const iso = this.selectedDate || new Date().toISOString().slice(0, 10);
+  const iso = this.selectedDate || formatLocalDate(new Date());
   const [year, month, day] = iso.split('-').map(Number);
   const date = new Date(year, month - 1, day);
 
@@ -66,7 +88,7 @@ weekEventSpans(): EventSpan[] {
     const d = new Date(startOfWeek);
     d.setDate(startOfWeek.getDate() + i);
     return {
-      iso: d.toISOString().slice(0, 10),
+      iso: formatLocalDate(d),
       date: d,
       isToday: d.toDateString() === new Date().toDateString(),
     };

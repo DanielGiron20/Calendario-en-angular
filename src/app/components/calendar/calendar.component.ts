@@ -31,6 +31,24 @@ type EventSpan = {
   colEnd: number;
 };
 
+function formatLocalDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function parseLocalDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d); // mes en JS es 0-based
+}
+
+function sameDay(d1: Date, d2: Date): boolean {
+  return d1.getFullYear() === d2.getFullYear()
+      && d1.getMonth() === d2.getMonth()
+      && d1.getDate() === d2.getDate();
+}
+
 @Component({
   selector: 'app-calendar',
   standalone: true,
@@ -67,7 +85,7 @@ animating = false;
     this.buildCalendar();
     this.checkScreen();
     window.addEventListener('resize', () => this.checkScreen());
-    this.selectedDate.set(this.today.toISOString().slice(0, 10));
+    this.selectedDate.set(formatLocalDate(this.today));
   }
 
   onWeekDaySelected(iso: string) {
@@ -89,6 +107,8 @@ animating = false;
 
 
 
+
+
 prevYear() {
   this.year.set(this.year() - 1);
   this.direction = 'prev';
@@ -107,7 +127,7 @@ prevWeek() {
   if (!this.selectedDate()) return;
   const d = new Date(this.selectedDate()!);
   d.setDate(d.getDate() - 7);
-  this.selectedDate.set(d.toISOString().slice(0,10));
+  this.selectedDate.set(formatLocalDate(d));
    this.direction = 'prev';
   this.animating = true;
 }
@@ -116,7 +136,7 @@ nextWeek() {
   if (!this.selectedDate()) return;
   const d = new Date(this.selectedDate()!);
   d.setDate(d.getDate() + 7);
-  this.selectedDate.set(d.toISOString().slice(0,10));
+  this.selectedDate.set(formatLocalDate(d));
    this.direction = 'next';
   this.animating = true;
 }
@@ -193,8 +213,8 @@ handleSwipe() {
     const selected = this.selectedDate();
     this.newEvent = {
       title: '',
-      start: selected ?? this.today.toISOString().slice(0, 10),
-      end: selected ?? this.today.toISOString().slice(0, 10),
+      start: selected ?? formatLocalDate(this.today),
+      end: selected ?? formatLocalDate(this.today),
       color: '',
       hstart: '',
       hend: ''
@@ -265,6 +285,12 @@ switchToMonth(monthIndex: number) {
   this.events.update(evts => evts.filter(e => e.id !== eventId));
 }
 
+get currentWeekIndex(): number {
+  const sel = this.selectedDate();
+  if (!sel) return -1;
+  return this.weeks().findIndex(week => week.some(day => day.iso === sel));
+}
+
 
 
   prevMonth() {
@@ -289,7 +315,7 @@ switchToMonth(monthIndex: number) {
     this.view = 'month';
     this.year.set(this.today.getFullYear());
     this.month.set(this.today.getMonth());
-    this.selectedDate.set(this.today.toISOString().slice(0, 10));
+    this.selectedDate.set(formatLocalDate(this.today));
     this.buildCalendar();
   }
 
@@ -342,20 +368,21 @@ eventSpans = computed<EventSpan[]>(() => {
 
   // 1) intentar segmentos contiguos (solo marcar filas < maxVisibleEvents)
   for (const ev of sortedEvents) {
-    const startDate = new Date(ev.start);
-    const endDate = new Date(ev.end);
+
+    const startDate = parseLocalDate(ev.start);
+    const endDate = parseLocalDate(ev.end);
 
     weeks.forEach((week, weekIndex) => {
-      const weekStart = new Date(week[0].iso);
-      const weekEnd = new Date(week[6].iso);
+      const weekStart = parseLocalDate(week[0].iso);
+      const weekEnd = parseLocalDate(week[6].iso);
 
       if (endDate < weekStart || startDate > weekEnd) return;
 
       const segStart = startDate > weekStart ? startDate : weekStart;
       const segEnd = endDate < weekEnd ? endDate : weekEnd;
 
-      const colStart = week.findIndex(d => d.iso === segStart.toISOString().slice(0, 10));
-      const colEnd = week.findIndex(d => d.iso === segEnd.toISOString().slice(0, 10));
+      const colStart = week.findIndex(d => sameDay(d.date, segStart));
+      const colEnd = week.findIndex(d => sameDay(d.date, segEnd));
       if (colStart === -1 || colEnd === -1) return;
 
       let col = colStart;
@@ -400,20 +427,20 @@ eventSpans = computed<EventSpan[]>(() => {
 
   // 2) intentar colocar por día (single-day) donde el evento aún no fue colocado
   for (const ev of sortedEvents) {
-    const startDate = new Date(ev.start);
-    const endDate = new Date(ev.end);
+    const startDate = parseLocalDate(ev.start);
+  const endDate = parseLocalDate(ev.end);
 
     weeks.forEach((week, weekIndex) => {
-      const weekStart = new Date(week[0].iso);
-      const weekEnd = new Date(week[6].iso);
+      const weekStart = parseLocalDate(week[0].iso);
+    const weekEnd = parseLocalDate(week[6].iso);
 
       if (endDate < weekStart || startDate > weekEnd) return;
 
       const segStart = startDate > weekStart ? startDate : weekStart;
       const segEnd = endDate < weekEnd ? endDate : weekEnd;
 
-      const colStart = week.findIndex(d => d.iso === segStart.toISOString().slice(0, 10));
-      const colEnd = week.findIndex(d => d.iso === segEnd.toISOString().slice(0, 10));
+    const colStart = week.findIndex(d => sameDay(d.date, segStart));
+    const colEnd = week.findIndex(d => sameDay(d.date, segEnd));
       if (colStart === -1 || colEnd === -1) return;
 
       for (let c = colStart; c <= colEnd; c++) {
@@ -527,9 +554,9 @@ openDayModalFromMore(span: EventSpan) {
     const cells: DayCell[] = [];
     const makeCell = (d: Date, inCurrent: boolean) => ({
       date: d,
-      iso: d.toISOString().slice(0, 10),
+      iso: formatLocalDate(d),
       inCurrentMonth: inCurrent,
-      isToday: d.toISOString().slice(0, 10) === this.today.toISOString().slice(0, 10)
+      isToday: formatLocalDate(d) === formatLocalDate(this.today)
     });
 
     for (let i = leading - 1; i >= 0; i--) cells.push(makeCell(new Date(y, m - 1, prevMonthDays - i), false));
