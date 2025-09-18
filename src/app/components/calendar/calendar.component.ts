@@ -334,6 +334,17 @@ get currentWeekIndex(): number {
   }
 
   
+onDaySelectedFromYear(dayIso: string) {
+  this.selectedDate.set(dayIso);
+  this.view ='day'; // cambia directamente a vista diaria
+}
+
+onMonthSelectedFromYear(monthIndex: number) {
+  const firstDayIso = `${this.currentYear}-${String(monthIndex + 1).padStart(2, '0')}-01`;
+  this.selectedDate.set(firstDayIso);
+  this.view ='month'; // cambia a vista mensual
+}
+
 
 
 

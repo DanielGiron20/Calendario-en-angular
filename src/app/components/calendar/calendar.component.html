@@ -153,8 +153,11 @@
   <div *ngIf="view === 'year'" class="w-full h-full">
     <app-year-view [year]="selectedYear"
     (monthSelected)="switchToMonth($event)"
+    [events]="events()"
     [animating]="animating"
     [direction]="direction"
+    (daySelected)="onDaySelectedFromYear($event)"
+    (monthSelected)="onMonthSelectedFromYear($event)"
     ></app-year-view>
   </div>
 </div>
@@ -238,7 +241,7 @@
         <div class="flex gap-1 ml-2">
 
           <!-- Botón Delete -->
-          <button (click)="deleteEvent(ev.id)" class="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">
+          <button (click)="deleteEvent(ev.id)" class="px-2 py-1 text-sm bg-primary-orange text-white rounded hover:bg-red-600">
             Delete
           </button>
         </div>

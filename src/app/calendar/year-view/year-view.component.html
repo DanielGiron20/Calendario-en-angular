@@ -9,26 +9,33 @@
     (transitionend)="animating = false"
   >
     <div *ngFor="let m of months"
-         (click)="selectMonth(m)"
-         class="border rounded-lg p-2 flex flex-col cursor-pointer bg-primary-blue hover:shadow-lg transition">
+         class="border rounded-lg p-2 flex flex-col bg-primary-blue hover:shadow-lg transition">
 
-      <h3 class="text-center text-white font-semibold capitalize mb-2 bg-secondary-blue hover:bg-primary-orange">
+      <h3 (click)="selectMonth(m)"
+      class="text-center text-white font-semibold capitalize mb-2 bg-secondary-blue hover:bg-primary-orange cursor-pointer">
         {{ getMonthName(m) }}
       </h3>
 
-      <div class="grid grid-cols-7 text-[10px] sm:text-xs text-center bg-primary-blue text-white gap-1">
+      <div class="grid grid-cols-7 text-[10px] sm:text-xs text-center text-white gap-1">
         <div *ngFor="let day of ['Su','Mo','Tu','We','Th','Fr','Sa']" class="font-bold">
           {{ day }}
         </div>
 
         <ng-container *ngFor="let d of getDaysInMonth(m)">
-          <div class="p-1 rounded hover:bg-primary-orange border border-transparent hover:border-blue-300">
+          <div 
+            (click)="selectDay(d)"
+            class="p-1 rounded cursor-pointer hover:bg-primary-orange transition relative"
+          >
+            <!-- número del día -->
             {{ d.split('-')[2] }}
+
+            <!-- puntito naranja si hay evento -->
+            <span *ngIf="hasEvent(d)" 
+                  class="absolute left-1/2 transform -translate-x-1/2 bottom-0 w-1.5 h-1.5 bg-primary-orange rounded-full">
+            </span>
           </div>
         </ng-container>
-
       </div>
     </div>
   </div>
 </div>
-
