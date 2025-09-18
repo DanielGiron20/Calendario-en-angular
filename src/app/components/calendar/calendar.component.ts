@@ -330,7 +330,8 @@ get currentWeekIndex(): number {
 
   /** Todos los eventos del día (single o dentro de multi-día) */
   getEventsForDay(dayIso: string): EventItem[] {
-    return this.events().filter(ev => ev.start <= dayIso && ev.end >= dayIso);
+    return this.events().filter(ev => ev.start <= dayIso && ev.end >= dayIso)
+    .sort((a, b) => a.start.localeCompare(b.start));
   }
 
   
