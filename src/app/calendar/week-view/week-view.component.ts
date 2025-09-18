@@ -65,7 +65,7 @@ weekEventSpans(): EventSpan[] {
   }
 
   // Fallback seguro (si por alguna razón no se pasó el índice): 
-  // devolvemos spans que intersectan la semana actual (menos preciso, pero evita crashes)
+  // devolvemos spans que intersectan la semana actual 
   const weekIsos = this.currentWeek.map(d => d.iso);
   return this.eventSpans.filter(span =>
     span.colStart < weekIsos.length && span.colEnd >= 0

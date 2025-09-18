@@ -248,8 +248,7 @@ switchToMonth(monthIndex: number) {
     return;
   }
   //validacion 3 horas
-  if (this.newEvent.hstart === this.newEvent.hend ||
-      this.newEvent.hend < this.newEvent.hstart) {
+  if (this.newEvent.start === this.newEvent.end && this.newEvent.hend < this.newEvent.hstart) {
     this.eventFormError.set('The end time cannot be earlier than the start time.');
     return;
   }
