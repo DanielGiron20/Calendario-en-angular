@@ -103,8 +103,10 @@
     <!-- Spans de eventos -->
     <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden">
       <ng-container *ngFor="let span of eventSpans()">
-        <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 border border-white rounded-lg shadow-lg hover:shadow-md transition truncate"
+        <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 border border-white rounded-lg shadow-lg hover:shadow-md transition-opacity duration-200 truncate"
           [ngClass]="span.event.color || 'bg-blue-600'"
+          [class.opacity-0]="animating"
+          [class.opacity-100]="!animating"
           [style.top]="'calc(' + (span.weekIndex * 100 / weeks().length) + '% + ' + (span.row * 22 + 40) + 'px)'"
           [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 8px)'"
           [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 18px)'"

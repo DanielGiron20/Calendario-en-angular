@@ -1,10 +1,12 @@
 <div class="relative">
     <div class="absolute inset-0 z-10 pointer-events-none">
     <ng-container *ngFor="let span of weekEventSpans()">
-      <div class="absolute text-xs px-2 py-1 rounded truncate text-white"
+      <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 border border-white rounded-lg shadow-lg hover:shadow-md transition-opacity duration-200 truncate"
            [ngClass]="span.event.color || 'bg-blue-600'"
+           [class.opacity-0]="animating"
+           [class.opacity-100]="!animating"
            [style.top.px]="span.row * 22 + 70"
-           [style.left.%]="(span.colStart / 7) * 100 + 1"
+           [style.left.%]="(span.colStart / 7) * 100"
            [style.width.%]="((span.colEnd - span.colStart + 1)/7) * 100 -1.5"
            [style.height.px]="20"
            title="{{ span.event.title }}">
