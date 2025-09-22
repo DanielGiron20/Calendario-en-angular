@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, computed, signal, SimpleChanges } from '@angular/core';
-import { NgFor, NgClass } from '@angular/common';
+import { NgFor, NgClass, NgIf } from '@angular/common';
 
 type EventItem = {
   id: string;
@@ -34,7 +34,7 @@ function formatLocalDate(date: Date): string {
 @Component({
   selector: 'app-week-view',
   standalone: true,
-  imports: [NgFor, NgClass,],
+  imports: [NgFor, NgClass],
   templateUrl: './week-view.component.html',
 })
 export class WeekViewComponent {

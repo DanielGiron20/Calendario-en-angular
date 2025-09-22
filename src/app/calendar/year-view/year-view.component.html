@@ -22,19 +22,19 @@
         </div>
 
         <ng-container *ngFor="let d of getDaysInMonth(m)">
-          <div 
-            (click)="selectDay(d)"
-            class="p-1 rounded cursor-pointer hover:bg-primary-orange transition relative"
-          >
-            <!-- número del día -->
-            {{ d.split('-')[2] }}
+  <div 
+    *ngIf="d" 
+    (click)="selectDay(d)"
+    class="p-1 rounded cursor-pointer hover:bg-primary-orange transition relative"
+  >
+    {{ d.split('-')[2] }}
 
-            <!-- puntito naranja si hay evento -->
-            <span *ngIf="hasEvent(d)" 
-                  class="absolute left-1/2 transform -translate-x-1/2 bottom-0 w-1.5 h-1.5 bg-primary-orange rounded-full">
-            </span>
-          </div>
-        </ng-container>
+    <span *ngIf="hasEvent(d)" 
+          class="absolute left-1/2 transform -translate-x-1/2 bottom-0 w-1.5 h-1.5 bg-primary-orange rounded-full">
+    </span>
+  </div>
+  <div *ngIf="!d" class="p-1"></div> <!-- placeholder vacío -->
+</ng-container>
       </div>
     </div>
   </div>

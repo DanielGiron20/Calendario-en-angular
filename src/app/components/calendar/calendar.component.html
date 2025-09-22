@@ -1,4 +1,4 @@
-<div class="p-4 md:p-6 min-h-screen bg-white "
+<div class="p-4 md:p-6  min-h-screen bg-white "
      (touchstart)="onTouchStart($event)"
      (touchend)="onTouchEnd($event)">
 
@@ -13,6 +13,7 @@
   <button *ngIf="view === 'month'" (click)="prevMonth()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange hover:text-white">←</button>
   <button *ngIf="view === 'week'" (click)="prevWeek()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange">←</button>
   <button *ngIf="view === 'year'" (click)="prevYear()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange">←</button>
+  <button *ngIf="view === 'day'" (click)="prevDay()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange">←</button>
 
   <!-- Contenedor animado -->
   <div 
@@ -28,6 +29,7 @@
       <span *ngSwitchCase="'month'">{{ monthLabel() }}</span>
       <span *ngSwitchCase="'week'">Week of {{ currentWeek[0].iso }} <br> to {{ currentWeek[6].iso }}</span>
       <span *ngSwitchCase="'year'">{{ selectedYear }}</span>
+      <span *ngSwitchCase="'day'">{{ getDayLabel() }}</span>
     </ng-container>
   </div>
 
@@ -35,6 +37,7 @@
   <button *ngIf="view === 'month'" (click)="nextMonth()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange hover:text-white">→</button>
   <button *ngIf="view === 'week'" (click)="nextWeek()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange">→</button>
   <button *ngIf="view === 'year'" (click)="nextYear()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange">→</button>
+  <button *ngIf="view === 'day'" (click)="nextDay()" class="px-2 py-1 text-primary-blue rounded border hover:bg-primary-orange">→</button>
 </div>
 
 
@@ -70,7 +73,7 @@
 </div>
 
   <!-- VISTA MES -->
-<div *ngIf="view === 'month'">
+<div *ngIf="view === 'month'" >
   <!-- Días de la semana -->
   <div class="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-primary-blue">
     <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
@@ -81,27 +84,31 @@
     
     <!-- Grilla animada -->
     <div 
-      class="grid grid-cols-7 gap-1 md:gap-2 relative z-0 transition-transform duration-300 ease-out"
+      class="grid grid-cols-7 gap-0 md:gap-2 relative z-0 transition-transform duration-300 ease-out"
       [ngStyle]="{'transform': animating ? (direction === 'next' ? 'translateX(-100%)' : 'translateX(100%)') : 'translateX(0)'}"
       (transitionend)="animating = false"
     >
       <ng-container *ngFor="let week of weeks()">
         <ng-container *ngFor="let day of week">
-          <div class="h-24 md:h-28 lg:h-32 rounded border-4 bg-primary-blue text-white border-stone-300 p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-secondary-blue"
+          <div class="h-24 md:h-28 lg:h-32  rounded border-2 md:border-4 bg-primary-blue text-white  p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-secondary-blue"
                [ngClass]="{
                  'opacity-50 bg-secondary-blue': !day.inCurrentMonth,
-                 'ring-2 ring-primary-orange': day.isToday,
-                 'bg-secondary-blue': selectedDate() === day.iso
+                  'border-primary-orange ': day.isToday,
+                  'md:border-stone-300': !day.isToday,
+                  'bg-secondary-blue': selectedDate() === day.iso
                }"
                (click)="selectDay(day)">
             <div class="text-xs md:text-lg font-medium text-right">{{ day.date.getDate() }}</div>
+            <div class="flex justify-center items-center flex-1 md:hidden">
+  <span *ngIf="getEventsForDay(day.iso).length > 0" class="w-2 h-2 bg-primary-orange  rounded-full"></span>
+</div>
           </div>
         </ng-container>
       </ng-container>
     </div>
 
     <!-- Spans de eventos -->
-    <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden hidden md:block">
       <ng-container *ngFor="let span of eventSpans()">
         <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 border border-white rounded-lg shadow-lg hover:shadow-md transition-opacity duration-200 truncate"
           [ngClass]="span.event.color || 'bg-blue-600'"
@@ -223,6 +230,7 @@
 
   </div>
 
+  
 
 <!-- Modal detalle día -->
 <div *ngIf="showDayModal()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

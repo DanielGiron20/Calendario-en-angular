@@ -38,15 +38,35 @@ export class YearViewComponent {
     return new Date(this.year, monthIndex, 1).toLocaleString('en', { month: 'long' });
   }
 
+  // getDaysInMonth(monthIndex: number): string[] {
+  //   const days: string[] = [];
+  //   const date = new Date(this.year, monthIndex, 1);
+  //   while (date.getMonth() === monthIndex) {
+  //     days.push(formatLocalDate(date)); // formato YYYY-MM-DD
+  //     date.setDate(date.getDate() + 1);
+  //   }
+  //   return days;
+  // }
+
   getDaysInMonth(monthIndex: number): string[] {
-    const days: string[] = [];
-    const date = new Date(this.year, monthIndex, 1);
-    while (date.getMonth() === monthIndex) {
-      days.push(formatLocalDate(date)); // formato YYYY-MM-DD
-      date.setDate(date.getDate() + 1);
-    }
-    return days;
+  const days: string[] = [];
+  const date = new Date(this.year, monthIndex, 1);
+  const firstWeekday = date.getDay(); // 0=Sunday ... 6=Saturday
+
+  // celdas vacías al inicio del mes
+  for (let i = 0; i < firstWeekday; i++) {
+    days.push(''); // puedes usar '' o un valor especial
   }
+
+  // días reales del mes
+  while (date.getMonth() === monthIndex) {
+    days.push(formatLocalDate(date)); // formato YYYY-MM-DD
+    date.setDate(date.getDate() + 1);
+  }
+
+  return days;
+}
+
 
   selectMonth(monthIndex: number) {
   this.monthSelected.emit(monthIndex);

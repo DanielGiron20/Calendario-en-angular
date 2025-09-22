@@ -1,12 +1,12 @@
 <div class="relative">
-    <div class="absolute inset-0 z-10 pointer-events-none">
+    <div class="hidden md:hidden absolute inset-0 z-10 pointer-events-none">
     <ng-container *ngFor="let span of weekEventSpans()">
       <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 border border-white rounded-lg shadow-lg hover:shadow-md transition-opacity duration-200 truncate"
            [ngClass]="span.event.color || 'bg-blue-600'"
            [class.opacity-0]="animating"
            [class.opacity-100]="!animating"
            [style.top.px]="span.row * 22 + 70"
-           [style.left.%]="(span.colStart / 7) * 100"
+           [style.left.%]="(span.colStart / 7) * 100 + 1"
            [style.width.%]="((span.colEnd - span.colStart + 1)/7) * 100 -1.5"
            [style.height.px]="20"
            title="{{ span.event.title }}">
@@ -14,33 +14,54 @@
       </div>
     </ng-container>
   </div>
+
+  <!-- Dentro de cada celda -->
+
+
 <div class="p-4">
   <!-- Días -->
    <div class="overflow-hidden relative">
-    <div class="grid grid-cols-7 text-center text-xs mb-1 md:text-sm font-medium text-primary-blue">
-      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-    </div>
-  <div 
-    class="grid grid-cols-7 gap-1 transition-transform duration-300 ease-out"
-    [ngClass]="{
-      'translate-x-0': !animating,
-      '-translate-x-full': animating && direction === 'prev',
-      'translate-x-full': animating && direction === 'next'
-    }"
-    (transitionend)="animating = false"
-  >
-    <div *ngFor="let day of currentWeek"
-         (click)="selectDay(day.iso)"
-         class="border-4 rounded p-2 min-h-32 flex flex-col overflow-visible cursor-pointer bg-primary-blue hover:bg-secondary-blue"
-         [class.bg-secondary-blue]="day.iso === selectedDate"
-         [class.ring-2]="day.iso === selectedDate"
-         [class.ring-primary-orange]="day.iso === selectedDate"
-         [class.opacity-80]="!day.isToday">
+    <div 
+  class="grid transition-transform duration-300 ease-out 
+         grid-cols-1 md:grid-cols-7 gap-2"
+  [ngClass]="{
+    'translate-x-0': !animating,
+    '-translate-x-full': animating && direction === 'prev',
+    'translate-x-full': animating && direction === 'next'
+  }"
+  (transitionend)="animating = false"
+>
+  <div *ngFor="let day of currentWeek; let i = index"
+       (click)="selectDay(day.iso)"
+       class="border-4 rounded p-2  flex flex-col md:min-h-80 min-h-40 md:min-h-auto overflow-visible cursor-pointer bg-primary-blue hover:bg-secondary-blue"
+       [class.ring-2]="day.iso === selectedDate"
+       [class.opacity-80]="!day.isToday"
+       [class.border-primary-orange]="day.isToday"
+      >
 
-      <!-- Número del día -->
-      <div class="text-sm font-medium text-right text-white">
-        {{ day.date.getDate() }}
-      </div>
+    <!-- Nombre del día -->
+    <div class="text-xs md:text-sm font-medium text-primary-blue bg-white rounded px-1 mb-1 text-center">
+      {{ ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][i] }}
     </div>
+
+    <!-- Número del día -->
+    <div class="text-sm font-medium text-center text-white">
+      {{ day.date.getDate() }}
+    </div>
+
+    <div class=" mt-2 space-y-1">
+            <ng-container *ngFor="let ev of getEventsForDay(day.iso)">
+              <div
+                class="bg-blue-600 text-white text-xs px-2 py-1 border border-white rounded-lg shadow-lg  truncate"
+                [ngClass]="ev.color || 'bg-blue-600'"
+                (click)="selectDay(day.iso); $event.stopPropagation()"
+                title="{{ ev.title }}">
+                {{ ev.title }}
+              </div>
+            </ng-container>
+          </div>
+  </div>
+</div>
+
   </div>
 </div>

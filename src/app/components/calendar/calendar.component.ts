@@ -81,6 +81,23 @@ export class CalendarComponent implements OnInit {
   
 direction: 'next' | 'prev' | null = null;
 animating = false;
+
+getDayLabel(): string {
+  const sel = this.selectedDate();
+  if (!sel) return ''; // si no hay fecha seleccionada
+  const date = parseLocalDate(sel);
+
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+  return formatter.format(date);
+}
+
+
+
   ngOnInit(): void {
     this.buildCalendar();
     this.checkScreen();
@@ -127,8 +144,16 @@ prevWeek() {
   if (!this.selectedDate()) return;
   const d = new Date(this.selectedDate()!);
   d.setDate(d.getDate() - 7);
+
+  // Actualiza mes y año si cruzamos de mes
+  this.month.set(d.getMonth());
+  this.year.set(d.getFullYear());
+
+  // Reconstruye la grilla de semanas del mes correspondiente
+  this.buildCalendar();
+
   this.selectedDate.set(formatLocalDate(d));
-   this.direction = 'prev';
+  this.direction = 'prev';
   this.animating = true;
 }
 
@@ -136,8 +161,16 @@ nextWeek() {
   if (!this.selectedDate()) return;
   const d = new Date(this.selectedDate()!);
   d.setDate(d.getDate() + 7);
+
+  // Actualiza mes y año si cruzamos de mes
+  this.month.set(d.getMonth());
+  this.year.set(d.getFullYear());
+
+  // Reconstruye la grilla de semanas del mes correspondiente
+  this.buildCalendar();
+
   this.selectedDate.set(formatLocalDate(d));
-   this.direction = 'next';
+  this.direction = 'next';
   this.animating = true;
 }
 
@@ -177,11 +210,13 @@ handleSwipe() {
     if (this.view === 'month') this.nextMonth();
     else if (this.view === 'week') this.nextWeek();
     else if (this.view === 'year') this.nextYear();
+    else if (this.view === 'day') this.nextDay();
   } else {
    
     if (this.view === 'month') this.prevMonth();
     else if (this.view === 'week') this.prevWeek();
     else if (this.view === 'year') this.prevYear();
+    else if (this.view === 'day') this.prevDay();
   }
 }
 
@@ -299,6 +334,8 @@ get currentWeekIndex(): number {
     this.buildCalendar();
      this.direction = 'prev';
   this.animating = true;
+  const firstDay = new Date(this.year(), this.month(), 1);
+  this.selectedDate.set(formatLocalDate(firstDay));
   }
 
   nextMonth() {
@@ -308,6 +345,8 @@ get currentWeekIndex(): number {
     this.buildCalendar();
      this.direction = 'next';
   this.animating = true;
+  const firstDay = new Date(this.year(), this.month(), 1);
+  this.selectedDate.set(formatLocalDate(firstDay));
   }
 
   goToday() {
@@ -316,6 +355,7 @@ get currentWeekIndex(): number {
     this.month.set(this.today.getMonth());
     this.selectedDate.set(formatLocalDate(this.today));
     this.buildCalendar();
+    
   }
 
   monthLabel(): string {
@@ -347,6 +387,29 @@ onMonthSelectedFromYear(monthIndex: number) {
 }
 
 
+prevDay() {
+  const sel = this.selectedDate();
+  if (!sel) return;
+
+  const d = parseLocalDate(sel); // convierte a Date
+  d.setDate(d.getDate() - 1);    // retrocede un día
+  this.selectedDate.set(formatLocalDate(d));
+
+  this.direction = 'prev';
+  this.animating = true;
+}
+
+nextDay() {
+  const sel = this.selectedDate();
+  if (!sel) return;
+
+  const d = parseLocalDate(sel); // convierte a Date
+  d.setDate(d.getDate() + 1);    // avanza un día
+  this.selectedDate.set(formatLocalDate(d));
+
+  this.direction = 'next';
+  this.animating = true;
+}
 
 
 
@@ -361,7 +424,7 @@ eventSpans = computed<EventSpan[]>(() => {
 
   const isMobile = window.innerWidth < 640;
   const maxVisibleEvents = isMobile ? 2 : 3;
-
+  
   
   const occ: boolean[][][] = weeks.map(week => week.map(() => new Array(maxVisibleEvents).fill(false)));
 
@@ -498,7 +561,7 @@ eventSpans = computed<EventSpan[]>(() => {
   weeks.forEach((week, weekIndex) => {
     week.forEach((day, colIndex) => {
       const eventCount = dayEventCount[day.iso] || 0;
-
+      
       if (eventCount > maxVisibleEvents) {
         const alreadyHasMore = spans.some(span =>
           span.event.title.startsWith('+ View more') &&
@@ -524,7 +587,8 @@ eventSpans = computed<EventSpan[]>(() => {
             colEnd: colIndex
           });
         }
-      }
+      
+    }
     });
   });
 
