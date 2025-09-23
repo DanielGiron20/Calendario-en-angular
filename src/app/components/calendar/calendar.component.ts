@@ -423,7 +423,11 @@ eventSpans = computed<EventSpan[]>(() => {
   if (weeks.length === 0) return spans;
 
   const isMobile = window.innerWidth < 640;
-  const maxVisibleEvents = isMobile ? 2 : 3;
+  let maxVisibleEvents = isMobile ? 2 : 3;
+  if(this.view === 'week'){
+    maxVisibleEvents = 8;
+  }
+
   
   
   const occ: boolean[][][] = weeks.map(week => week.map(() => new Array(maxVisibleEvents).fill(false)));
@@ -558,6 +562,7 @@ eventSpans = computed<EventSpan[]>(() => {
     });
   });
 
+  
   weeks.forEach((week, weekIndex) => {
     week.forEach((day, colIndex) => {
       const eventCount = dayEventCount[day.iso] || 0;
@@ -590,6 +595,7 @@ eventSpans = computed<EventSpan[]>(() => {
       
     }
     });
+  
   });
 
   return spans;

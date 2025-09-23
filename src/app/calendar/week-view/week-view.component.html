@@ -1,5 +1,5 @@
 <div class="relative">
-    <div class="hidden md:hidden absolute inset-0 z-10 pointer-events-none">
+    <div class="hidden md:block absolute inset-0 z-10 pointer-events-none">
     <ng-container *ngFor="let span of weekEventSpans()">
       <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 border border-white rounded-lg shadow-lg hover:shadow-md transition-opacity duration-200 truncate"
            [ngClass]="span.event.color || 'bg-blue-600'"
@@ -52,7 +52,7 @@
     <div class=" mt-2 space-y-1">
             <ng-container *ngFor="let ev of getEventsForDay(day.iso)">
               <div
-                class="bg-blue-600 text-white text-xs px-2 py-1 border border-white rounded-lg shadow-lg  truncate"
+                class="bg-blue-600 md:hidden text-white text-xs px-2 py-1 border border-white rounded-lg shadow-lg  truncate"
                 [ngClass]="ev.color || 'bg-blue-600'"
                 (click)="selectDay(day.iso); $event.stopPropagation()"
                 title="{{ ev.title }}">
