@@ -71,6 +71,10 @@ export class CalendarComponent implements OnInit {
   currentYear = new Date().getFullYear();
   view: 'month' | 'week' | 'year' | 'day' = 'month';
   
+   
+  selectedEvent = signal<EventItem | null>(null);
+  showEventModal = signal(false);
+
   newEvent: {
     color: string; title: string; start: string; end: string; hstart: string; hend: string
 } = {
@@ -95,6 +99,8 @@ getDayLabel(): string {
   });
   return formatter.format(date);
 }
+
+
 
 
 
@@ -220,6 +226,10 @@ handleSwipe() {
   }
 }
 
+ openEventModal(event: EventItem) {
+  this.selectedEvent.set(event);
+  this.showEventModal.set(true);
+}
 
 
 
@@ -411,6 +421,14 @@ nextDay() {
   this.animating = true;
 }
 
+// dentro de la clase CalendarComponent
+openDayModalFromCell(day: DayCell) {
+  // seleccionar el día
+  this.selectedDate.set(day.iso);
+  // abrir el modal
+  this.showDayModal.set(true);
+}
+
 
 
 
@@ -428,6 +446,8 @@ eventSpans = computed<EventSpan[]>(() => {
     maxVisibleEvents = 8;
   }
 
+
+  
   
   
   const occ: boolean[][][] = weeks.map(week => week.map(() => new Array(maxVisibleEvents).fill(false)));

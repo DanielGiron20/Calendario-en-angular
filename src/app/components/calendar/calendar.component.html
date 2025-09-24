@@ -90,17 +90,19 @@
     >
       <ng-container *ngFor="let week of weeks()">
         <ng-container *ngFor="let day of week">
-          <div class="h-24 md:h-28 lg:h-32  rounded border-2 md:border-4 bg-primary-blue text-white  p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-secondary-blue"
+          <div class="h-22 md:h-28 lg:h-32 rounded border-2 md:border-4 bg-primary-blue text-white  p-2 flex flex-col cursor-pointer overflow-hidden hover:bg-secondary-blue"
                [ngClass]="{
                  'opacity-50 bg-secondary-blue': !day.inCurrentMonth,
                   'border-primary-orange ': day.isToday,
                   'md:border-stone-300': !day.isToday,
                   'bg-secondary-blue': selectedDate() === day.iso
                }"
-               (click)="selectDay(day)">
+               (click)="selectDay(day)"
+               (dblclick)="openDayModalFromCell(day)"
+               >
             <div class="text-xs md:text-lg font-medium text-right">{{ day.date.getDate() }}</div>
             <div class="flex justify-center items-center flex-1 md:hidden">
-  <span *ngIf="getEventsForDay(day.iso).length > 0" class="w-2 h-2 bg-primary-orange  rounded-full"></span>
+  <span *ngIf="getEventsForDay(day.iso).length > 0" class="w-2 h-2 bg-primary-orange border-1 border-white rounded-full"></span>
 </div>
           </div>
         </ng-container>
@@ -122,7 +124,7 @@
           [class.pointer-events-auto]="span.event.id.startsWith('more-')"
           [class.cursor-pointer]="span.event.id.startsWith('more-')"
           [class.bg-gray-500]="span.event.id.startsWith('more-')"
-          (click)="span.event.id.startsWith('more-') ? openDayModalFromMore(span) : null">
+          (click)="span.event.id.startsWith('more-') ? openDayModalFromMore(span) : openEventModal(span.event) ">
           {{ span.event.title }}
         </div>
       </ng-container>
@@ -230,10 +232,25 @@
 
   </div>
 
-  
+  <!-- Modal de evento -->
+<div *ngIf="showEventModal()" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white p-4 rounded-lg max-w-md w-full">
+    <h2 class="text-lg font-bold mb-2">{{ selectedEvent()?.title }}</h2>
+    <p><strong>Inicio:</strong> {{ selectedEvent()?.start }}</p>
+    <p><strong>Fin:</strong> {{ selectedEvent()?.end }}</p>
+    <p *ngIf="selectedEvent()?.hstart"><strong>Hora inicio:</strong> {{ selectedEvent()?.hstart }}</p>
+    <p *ngIf="selectedEvent()?.hend"><strong>Hora fin:</strong> {{ selectedEvent()?.hend }}</p>
+
+    <button class="mt-4 bg-primary-blue text-white px-4 py-2 rounded"
+            (click)="showEventModal.set(false)">
+      Cerrar
+    </button>
+  </div>
+</div>
+
 
 <!-- Modal detalle día -->
-<div *ngIf="showDayModal()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+<div *ngIf="showDayModal()" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-40">
   <div class="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto space-y-4">
     <div class="flex justify-between items-center">
       <h2 class="text-lg font-semibold text-primary-blue">Events of {{ selectedDate() }}</h2>
@@ -243,7 +260,7 @@
     <div *ngIf="getEventsForDay(selectedDate() || '').length > 0; else noEvents" class="space-y-2">
       <div *ngFor="let ev of getEventsForDay(selectedDate()!)" class="px-3 py-2 rounded flex justify-between items-center bg-blue-100">
         
-        <div class="flex-1">
+        <div class="flex-1" (click)="openEventModal(ev)" class="cursor-pointer">
           <div class="font-medium">{{ ev.title }}</div>
           <div class="text-xs text-gray-700">{{ ev.start }} {{ ev.hstart }}  - {{ ev.end }} {{ ev.hend }}</div>
         </div>

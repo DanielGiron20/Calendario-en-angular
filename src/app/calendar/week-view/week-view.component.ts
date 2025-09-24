@@ -7,6 +7,8 @@ type EventItem = {
   start: string; // 'YYYY-MM-DD'
   end: string;   // 'YYYY-MM-DD'
   color?: string;
+  hstart: string; // 'HH:mm'
+  hend: string;   // 'HH:mm'
 };
 
 type EventSpan = {
@@ -96,7 +98,6 @@ weekEventSpans(): EventSpan[] {
 }
 
 
-  
 
   
 
