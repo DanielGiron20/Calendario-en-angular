@@ -1,7 +1,7 @@
 <div class="relative">
     <div class="hidden md:block absolute inset-0 z-10 pointer-events-none">
     <ng-container *ngFor="let span of weekEventSpans()">
-      <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 border border-white rounded-lg shadow-lg hover:shadow-md transition-opacity duration-200 truncate"
+      <div class="absolute bg-blue-600 text-white text-xs md:text-sm px-2 pointer-events-auto cursor-pointer border border-white rounded-lg shadow-lg hover:shadow-md transition-opacity duration-200 truncate"
            [ngClass]="span.event.color || 'bg-blue-600'"
            [class.opacity-0]="animating"
            [class.opacity-100]="!animating"
@@ -9,7 +9,9 @@
            [style.left.%]="(span.colStart / 7) * 100 + 1"
            [style.width.%]="((span.colEnd - span.colStart + 1)/7) * 100 -1.5"
            [style.height.px]="20"
-           title="{{ span.event.title }}">
+           title="{{ span.event.title }}"
+           (click)="openEventModal.emit(span.event); $event.stopPropagation()"
+           >
         {{ span.event.title }}
       </div>
     </ng-container>
@@ -52,9 +54,9 @@
     <div class=" mt-2 space-y-1">
             <ng-container *ngFor="let ev of getEventsForDay(day.iso)">
               <div
-                class="bg-blue-600 md:hidden text-white text-xs px-2 py-1 border border-white rounded-lg shadow-lg  truncate"
+                class="bg-blue-600 md:hidden text-white text-xs px-2 py-1 pointer-events-auto cursor-pointer border border-white rounded-lg shadow-lg  truncate"
                 [ngClass]="ev.color || 'bg-blue-600'"
-                (click)="selectDay(day.iso); $event.stopPropagation()"
+                (click)="openEventModal.emit(ev); $event.stopPropagation()"
                 title="{{ ev.title }}">
                 {{ ev.title }}
               </div>

@@ -49,7 +49,8 @@ export class WeekViewComponent {
   @Output() selectedDateChange = new EventEmitter<string>();
   @Output() openDayModal = new EventEmitter<void>();
   @Output() openEventForm = new EventEmitter<void>();
-  
+  @Output() openEventModal = new EventEmitter<EventItem>();
+
 
   
 

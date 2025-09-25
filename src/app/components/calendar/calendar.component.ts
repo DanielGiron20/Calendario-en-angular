@@ -100,6 +100,20 @@ getDayLabel(): string {
   return formatter.format(date);
 }
 
+formatEventDate(dateStr: string | undefined, timeStr: string | undefined): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr + 'T' + (timeStr || '00:00'));
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+  return date.toLocaleString('en-US', options);
+}
 
 
 

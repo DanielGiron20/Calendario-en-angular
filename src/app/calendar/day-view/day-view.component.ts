@@ -21,7 +21,7 @@ export class DayViewComponent {
   @Input() selectedDate: string | null = null;
   @Input() events: EventItem[] = [];
   @Output() deleteEvent = new EventEmitter<string>();
-
+@Output() openEventModal = new EventEmitter<EventItem>();
   get eventsForDay(): EventItem[] {
     if (!this.selectedDate) return [];
     return this.events.filter(ev => ev.start <= this.selectedDate! && ev.end >= this.selectedDate!);
