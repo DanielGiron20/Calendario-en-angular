@@ -71,6 +71,7 @@ export class CalendarComponent implements OnInit {
   currentYear = new Date().getFullYear();
   view: 'month' | 'week' | 'year' | 'day' = 'month';
   
+  
    
   selectedEvent = signal<EventItem | null>(null);
   showEventModal = signal(false);
@@ -133,6 +134,8 @@ formatEventDate(dateStr: string | undefined, timeStr: string | undefined): strin
 
   currentView: 'month' | 'year' = 'month';
 
+ 
+  
   get currentWeek(): DayCell[] {
   const sel = this.selectedDate();
   if (!sel) return this.weeks()[0] || [];
@@ -394,9 +397,21 @@ get currentWeekIndex(): number {
 
   /** Todos los eventos del día (single o dentro de multi-día) */
   getEventsForDay(dayIso: string): EventItem[] {
-    return this.events().filter(ev => ev.start <= dayIso && ev.end >= dayIso)
-    .sort((a, b) => a.start.localeCompare(b.start));
-  }
+  return this.events()
+    .filter(ev => {
+      // 🔹 comparamos solo la parte de fecha para incluir el evento en el día
+      const startDate = ev.start.slice(0, 10);
+      const endDate = ev.end.slice(0, 10);
+      return startDate <= dayIso && endDate >= dayIso;
+    })
+    .sort((a, b) => {
+      // 🔹 unir fecha + hora (si existe) para ordenar cronológicamente
+      const startA = new Date(a.start + 'T' + (a.hstart || '00:00'));
+      const startB = new Date(b.start + 'T' + (b.hstart || '00:00'));
+      return startA.getTime() - startB.getTime();
+    });
+}
+
 
   
 onDaySelectedFromYear(dayIso: string) {
@@ -444,6 +459,18 @@ openDayModalFromCell(day: DayCell) {
 }
 
 
+recomputeEvents() {
+  this.events.update(evts => [...evts]); // fuerza recomputación de computed que dependen de events
+}
+
+
+onDayClick(day: DayCell) {
+  this.selectedDate.set(day.iso);
+
+  if (this.isMobile()) {
+    this.showDayModal.set(true);
+  }
+}
 
 
 
@@ -457,26 +484,28 @@ eventSpans = computed<EventSpan[]>(() => {
   const isMobile = window.innerWidth < 640;
   let maxVisibleEvents = isMobile ? 2 : 3;
   if(this.view === 'week'){
-    maxVisibleEvents = 8;
+    maxVisibleEvents = 12;
   }
-
-
-  
-  
-  
   const occ: boolean[][][] = weeks.map(week => week.map(() => new Array(maxVisibleEvents).fill(false)));
 
   // registro de colocaciones por evento/semana/col: key = `${eventId}-${weekIndex}-${col}`
   const placed = new Set<string>();
 
   // ordenar eventos (mantener tu criterio original)
-  const sortedEvents = [...events].sort((a, b) => {
-    const diff = a.start.localeCompare(b.start);
-    if (diff !== 0) return diff;
-  
-    return (new Date(a.end).getTime() - new Date(a.start).getTime()) -
-           (new Date(b.end).getTime() - new Date(b.start).getTime());
-  });
+const sortedEvents = [...events].sort((a, b) => {
+  const diffDate = a.start.localeCompare(b.start);
+  if (diffDate !== 0) return diffDate;
+
+  // Misma fecha: ordenar por hora de inicio
+  const timeA = a.hstart || '00:00';
+  const timeB = b.hstart || '00:00';
+  if (timeA !== timeB) return timeA.localeCompare(timeB);
+
+  // desempate: duración más corta primero
+  return (new Date(a.end).getTime() - new Date(a.start).getTime()) -
+         (new Date(b.end).getTime() - new Date(b.start).getTime());
+});
+
 
   // 1) intentar segmentos contiguos (solo marcar filas < maxVisibleEvents)
   for (const ev of sortedEvents) {
@@ -681,5 +710,7 @@ openDayModalFromMore(span: EventSpan) {
     const weeks: DayCell[][] = [];
     for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
     this.weeks.set(weeks);
+    this.recomputeEvents();
   }
+    
 }

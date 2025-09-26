@@ -97,7 +97,7 @@
                   'md:border-stone-300': !day.isToday,
                   'bg-secondary-blue': selectedDate() === day.iso
                }"
-               (click)="selectDay(day)"
+               (click)="onDayClick(day)"
                (dblclick)="openDayModalFromCell(day)"
                >
             <div class="text-xs md:text-lg font-medium text-right">{{ day.date.getDate() }}</div>
@@ -117,7 +117,7 @@
           [class.opacity-0]="animating"
           [class.opacity-100]="!animating"
           [style.top]="'calc(' + (span.weekIndex * 100 / weeks().length) + '% + ' + (span.row * 22 + 40) + 'px)'"
-          [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 8px)'"
+          [style.left]="'calc(' + (span.colStart * 100 / 7) + '% + 11px)'"
           [style.width]="'calc(' + ((span.colEnd - span.colStart + 1) * 100 / 7) + '% - 18px)'"
           [style.height]="'20px'"
           [title]="span.event.title"
@@ -156,6 +156,8 @@
     [direction]="direction"
     [currentWeekIndex]="currentWeekIndex"
     (openEventModal)="openEventModal($event)"
+    (openDayModalFromMore)="openDayModalFromMore($event)"
+    (recomputeEventsRequest)="recomputeEvents()"
     >
    </app-week-view>
 

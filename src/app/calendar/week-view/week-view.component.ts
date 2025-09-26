@@ -50,9 +50,20 @@ export class WeekViewComponent {
   @Output() openDayModal = new EventEmitter<void>();
   @Output() openEventForm = new EventEmitter<void>();
   @Output() openEventModal = new EventEmitter<EventItem>();
+  @Output() openDayModalFromMore = new EventEmitter<EventSpan>();
+  @Output() recomputeEventsRequest = new EventEmitter<void>();
 
 
-  
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['events']) {
+      this.recomputeEventsRequest.emit();
+    }
+  }
+  openDayModalFromMorea(span: EventSpan) {
+    this.selectedDate = span.event.start;
+    this.selectedDateChange.emit(span.event.start); // sincroniza el día con el padre
+    this.openDayModal.emit();           // abre el modal del día
+  }
 
 // weekEventSpans(): EventSpan[] {
 //   const weekIsos = this.currentWeek.map(d => d.iso);
@@ -96,15 +107,19 @@ weekEventSpans(): EventSpan[] {
       isToday: d.toDateString() === new Date().toDateString(),
     };
   });
+  
 }
 
+  getEventsForDay(dayIso: string): EventItem[] {
+  return this.events
+    .filter(ev => ev.start <= dayIso && ev.end >= dayIso)
+    .sort((a, b) => {
+      const startA = new Date(a.start + 'T' + (a.hstart || '00:00'));
+      const startB = new Date(b.start + 'T' + (b.hstart || '00:00'));
+      return startA.getTime() - startB.getTime();
+    });
+}
 
-
-  
-
-  getEventsForDay(dayIso: string) {
-    return this.events.filter(ev => ev.start <= dayIso && ev.end >= dayIso);
-  }
 
   selectDay(iso: string) {
   this.selectedDate = iso;

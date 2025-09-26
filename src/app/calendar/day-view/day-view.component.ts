@@ -21,11 +21,19 @@ export class DayViewComponent {
   @Input() selectedDate: string | null = null;
   @Input() events: EventItem[] = [];
   @Output() deleteEvent = new EventEmitter<string>();
-@Output() openEventModal = new EventEmitter<EventItem>();
-  get eventsForDay(): EventItem[] {
-    if (!this.selectedDate) return [];
-    return this.events.filter(ev => ev.start <= this.selectedDate! && ev.end >= this.selectedDate!);
-  }
+  @Output() openEventModal = new EventEmitter<EventItem>();
+get eventsForDay(): EventItem[] {
+  if (!this.selectedDate) return [];
+  
+  return this.events
+    .filter(ev => ev.start <= this.selectedDate! && ev.end >= this.selectedDate!)
+    .sort((a, b) => {
+      const startA = new Date(a.start + 'T' + (a.hstart || '00:00'));
+      const startB = new Date(b.start + 'T' + (b.hstart || '00:00'));
+      return startA.getTime() - startB.getTime();
+    });
+}
+
 
   onDeleteEvent(eventId: string) {
     this.deleteEvent.emit(eventId);

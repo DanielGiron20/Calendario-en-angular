@@ -6,12 +6,12 @@
            [class.opacity-0]="animating"
            [class.opacity-100]="!animating"
            [style.top.px]="span.row * 22 + 70"
-           [style.left.%]="(span.colStart / 7) * 100 + 1"
+           [style.left.%]="(span.colStart / 7) * 100 + 0.4"
            [style.width.%]="((span.colEnd - span.colStart + 1)/7) * 100 -1.5"
            [style.height.px]="20"
            title="{{ span.event.title }}"
-           (click)="openEventModal.emit(span.event); $event.stopPropagation()"
-           >
+           [class.bg-gray-500]="span.event.id.startsWith('more-')"
+           (click)="span.event.id.startsWith('more-') ? openDayModalFromMorea(span) : openEventModal.emit(span.event); $event.stopPropagation()">
         {{ span.event.title }}
       </div>
     </ng-container>
