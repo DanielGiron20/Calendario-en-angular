@@ -482,9 +482,9 @@ eventSpans = computed<EventSpan[]>(() => {
   if (weeks.length === 0) return spans;
 
   const isMobile = window.innerWidth < 640;
-  let maxVisibleEvents = isMobile ? 2 : 3;
+  let maxVisibleEvents = 3;
   if(this.view === 'week'){
-    maxVisibleEvents = 12;
+    maxVisibleEvents = 11;
   }
   const occ: boolean[][][] = weeks.map(week => week.map(() => new Array(maxVisibleEvents).fill(false)));
 
@@ -663,17 +663,6 @@ const sortedEvents = [...events].sort((a, b) => {
 
   return spans;
 });
-
-
-
-
-
-
-
-
-
-
-
 
 openDayModalFromMore(span: EventSpan) {
   const date = span.event.id.replace('more-', '');
